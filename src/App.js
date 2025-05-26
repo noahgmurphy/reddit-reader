@@ -3,6 +3,7 @@ import './App.css';
 import {useSelector , useDispatch} from 'react-redux';
 import { fetchPostData, parseMock } from './features/posts/postsSlice.js';
 import {useState} from 'react';
+import { PostSearchBar } from './features/posts/PostSearchBar.js'
 
 function App() {
   const [mockData, setMockData] = useState([[{data:{children:[{
@@ -22,11 +23,12 @@ function App() {
   }
   const retrieve = () => {
     //dispatch(parseMock());
-    const {title, ups, downs, num_comments} = mockData[0][0].data.children[0].data;
+    const {title, ups, downs, num_comments} = data[0].data.children[0].data; //data[][] for detailed view
     console.log(title);
   }
   return (
     <div>
+      <PostSearchBar/>
       <button onClick={()=>{ handleClick()}}></button>
       <button onClick={()=>{ retrieve()}}> RETRIEVE </button>
       <p></p>

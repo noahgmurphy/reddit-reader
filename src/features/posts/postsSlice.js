@@ -2,9 +2,18 @@ import { createAsyncThunk, createSlice, current} from '@reduxjs/toolkit';
 
  export const fetchPostData = createAsyncThunk(
     'posts/fetchPostData',
-    async(thunkAPI)=>{
-        
-        const response = await fetch('https://www.reddit.com/r/mildlyinfuriating/comments/1krzw9k/received_a_call_from_the_hoa_lawyer_threatening_a.json');
+    async(arg, thunkAPI)=>{
+        let url = 'https://www.reddit.com'
+        if(arg){
+           url += '/search.json?q=';
+           url += arg;
+           
+        }
+        else{
+            url += '.json';
+        }
+        console.log(url)
+        const response = await fetch(url);
         const data = await response.json();
         return data;
     }
@@ -40,7 +49,8 @@ import { createAsyncThunk, createSlice, current} from '@reduxjs/toolkit';
            console.log("success");
            state.push(action.payload); 
            const data = (current(state));
-           console.log(data[0][0].data.children[0].data);
+           //console.log(data[0][0].data.children[0].data);
+           console.log(data)
         })
         builder.addCase(fetchPostData.rejected, () => {
             console.log("failed");
