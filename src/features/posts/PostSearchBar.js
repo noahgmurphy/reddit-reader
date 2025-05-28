@@ -1,29 +1,10 @@
-import React, { useState } from 'react';
-import { fetchPostData } from './postsSlice.js'
-import {useDispatch} from 'react-redux'
+import React from 'react';
 
-export const PostSearchBar = () => {
-const dispatch = useDispatch();
-const [input, setInput] = useState();
-const handleClick = () => {
-    let url = '';
-    for(let i=0; i<input.length; i++){
-        if(input[i]===' '){
-            url+='%20'
-           
-        }
-        else{
-            url+=input[i];
-        }
-    }
-    console.log(url);
-    setInput('')
-    dispatch(fetchPostData(url));
-}
+export const PostSearchBar = (props) => {
 return(
     <div>
-        <input onChange={(e)=>{setInput(e.target.value)}}></input>
-        <button onClick={()=>{handleClick()}}>SEARCH</button>
+        <input onChange={(e)=>{props.handleInput(e.target.value)}}></input>
+        <button onClick={()=>{props.handleClick()}}>SEARCH</button>
     </div>
 )
 }

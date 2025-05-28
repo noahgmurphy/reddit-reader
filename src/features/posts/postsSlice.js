@@ -6,8 +6,7 @@ import { createAsyncThunk, createSlice, current} from '@reduxjs/toolkit';
         let url = 'https://www.reddit.com'
         if(arg){
            url += '/search.json?q=';
-           url += arg;
-           
+           url += arg.url;
         }
         else{
             url += '.json';
@@ -21,26 +20,7 @@ import { createAsyncThunk, createSlice, current} from '@reduxjs/toolkit';
  const postsSlice = createSlice({
     name: 'posts',
     initialState: [],
-    reducers:{
-        /*
-        retrieveMock: ((state, action)=>{
-            const result = action.payload.data;
-            state.push(action.payload);
-        }),
-
-        parseMock: ((state)=>{
-
-            const {title, ups, downs, num_comments} = state[0][0].data.children[0].data;
-            console.log(title)
-            return{
-                title,
-                ups,
-                downs,
-                num_comments
-            };
-        })
-        */
-    },
+    reducers:{},
     extraReducers: builder => {
         builder.addCase(fetchPostData.pending, () =>{
             console.log("loading");

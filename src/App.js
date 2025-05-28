@@ -1,11 +1,16 @@
-import logo from './logo.svg';
 import './App.css';
 import {useSelector , useDispatch} from 'react-redux';
-import { fetchPostData, parseMock } from './features/posts/postsSlice.js';
+import { fetchPostData } from './features/posts/postsSlice.js';
 import {useState} from 'react';
 import { PostSearchBar } from './features/posts/PostSearchBar.js'
+import { PostNavigation } from './features/posts/PostNavigation.js'
+import { PostDisplay } from './features/posts/PostDisplay.js';
 
 function App() {
+  const [page, setPage] = useState(0);
+  const [input, setInput] = useState();
+  const [url, setUrl] = useState();
+  const [listPage, setListPage] = useState(0);
   const [mockData, setMockData] = useState([[{data:{children:[{
   data:{
     title:'Test Post',
@@ -14,25 +19,38 @@ function App() {
     num_comments: 100
   }
 }]}}]]);
+  
   const dispatch = useDispatch();
   const data = useSelector((state)=>state.posts);
-  
+//SEARCH CODE 
+  const handleInput = (value) => {
+    setInput(value);
+  }
   const handleClick = () => {
-    dispatch(fetchPostData());
-    
-  }
-  const retrieve = () => {
-    //dispatch(parseMock());
-    const {title, ups, downs, num_comments} = data[0].data.children[0].data; //data[][] for detailed view
-    console.log(title);
-  }
+    let url = '';
+    for(let i=0; i<input.length; i++){
+        if(input[i]===' '){
+            url+='%20'
+           
+        }
+        else{
+            url+=input[i];
+        }
+    }
+    console.log(url);
+    setUrl(url);
+    setInput('')
+    dispatch(fetchPostData({
+        firstPage: true,
+        url:url
+    }));
+}
+////////
   return (
     <div>
-      <PostSearchBar/>
-      <button onClick={()=>{ handleClick()}}></button>
-      <button onClick={()=>{ retrieve()}}> RETRIEVE </button>
-      <p></p>
-
+      <PostSearchBar handleClick={handleClick} handleInput={handleInput}/>
+      <PostNavigation changePage={setPage} page={page} url={url} postData={data} listPageHandler={setListPage} listPage={listPage}/>
+      <PostDisplay postData={data} page={page} listPage={listPage}/>
     </div>
   );
 }
