@@ -2,9 +2,11 @@ import React from 'react';
 import {useDispatch} from 'react-redux';
 import { fetchPostData } from './postsSlice.js'
 
+
 export const PostNavigation = (props) => {
     const dispatch = useDispatch();
 
+    /*
     const handleNavigation = (value) =>{
                                                     
         if(value==="next" && props.page<24){ 
@@ -32,10 +34,13 @@ export const PostNavigation = (props) => {
             props.listPageHandler(props.listPage-1)//of previous listing
         }
     }
+    */
+
+    
     return(
     <div>
-        <button value="prev" onClick={(e)=>{handleNavigation(e.target.value)}}>PREV</button>
-        <button value="next" onClick={(e)=>{handleNavigation(e.target.value)}}>NEXT</button>
+        <button value="prev">PREV</button>
+        <button value="next">NEXT</button>
     </div>
     )
 }

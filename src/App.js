@@ -8,9 +8,11 @@ import { PostDisplay } from './features/posts/PostDisplay.js';
 
 function App() {
   const [page, setPage] = useState(0);
+  
   const [input, setInput] = useState();
   const [url, setUrl] = useState();
   const [listPage, setListPage] = useState(0);
+  const [searchNum, setSearchNum] = useState(0);
   const [mockData, setMockData] = useState([[{data:{children:[{
   data:{
     title:'Test Post',
@@ -21,7 +23,9 @@ function App() {
 }]}}]]);
   
   const dispatch = useDispatch();
-  const data = useSelector((state)=>state.posts);
+  const data = useSelector((state)=>state.posts.postData);
+  const apiStatus = useSelector((state)=>state.posts.isLoading)
+  const pageNum = useSelector((state)=>state.posts.page)
 //SEARCH CODE 
   const handleInput = (value) => {
     setInput(value);
@@ -43,14 +47,30 @@ function App() {
     dispatch(fetchPostData({
         firstPage: true,
         url:url
-    }));
+    }))
+    
+    
+}
+
+//LOAD NEXT PAGE
+const loadNextPage=()=>{
+
+  console.log("load next page")
+  let nextUrl = url; //DECLARE NEW URL
+  nextUrl+="&after=" //SET IT EQUAL TO SEARCH URL + "AFTER" QUERY
+  // nextUrl+=data[0].data.after; //ACCESS AFTER 
+  dispatch(fetchPostData({  //DISPATCHES FETCH WITH QUERY URL + "AFTER"
+    firstPage: false,
+    url:nextUrl
+  }));
+  
 }
 ////////
   return (
     <div>
       <PostSearchBar handleClick={handleClick} handleInput={handleInput}/>
       <PostNavigation changePage={setPage} page={page} url={url} postData={data} listPageHandler={setListPage} listPage={listPage}/>
-      <PostDisplay postData={data} page={page} listPage={listPage}/>
+      {data[0]&& <PostDisplay searchNum={searchNum} items={data} hasNextPage={data[0].data.after?true:false} page={page} listPage={listPage} isNextPageLoading={apiStatus} loadNextPage={loadNextPage} pageNum={pageNum}/>}
     </div>
   );
 }
