@@ -21,12 +21,12 @@ const Row = ({index, style}) => {
         content = "Loading..."
     }
     else{
-        content = items[0].data.children[index];
+        content = items[0].data.children[index].data.title;
     }
-    return <div style={style}>{content.data.title}</div>
+    return <div style={style}>{content}</div>
 };
 
-const itemCount = hasNextPage ? items[0].data.children.length+1 : items[0].data.children.length+1;
+const itemCount = hasNextPage ? items[0].data.children.length+1 : items[0].data.children.length;
 const loadMoreItems = isNextPageLoading ? ()=>{} : loadNextPage;
 const isItemLoaded = index => !hasNextPage || index < items[0].data.children.length;
 return(
@@ -43,7 +43,7 @@ return(
             onItemsRendered={onItemsRendered}
             ref={ref}
             height={150}
-            itemCount={1000}
+            itemCount={itemCount}
             itemSize={35}
             width={700}>
                 {Row}

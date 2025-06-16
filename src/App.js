@@ -24,6 +24,7 @@ function App() {
   
   const dispatch = useDispatch();
   const data = useSelector((state)=>state.posts.postData);
+  const after = useSelector((state)=>state.posts.after);
   const apiStatus = useSelector((state)=>state.posts.isLoading)
   const pageNum = useSelector((state)=>state.posts.page)
 //SEARCH CODE 
@@ -59,10 +60,13 @@ const loadNextPage=()=>{
   let nextUrl = url; //DECLARE NEW URL
   nextUrl+="&after=" //SET IT EQUAL TO SEARCH URL + "AFTER" QUERY
   // nextUrl+=data[0].data.after; //ACCESS AFTER 
-  dispatch(fetchPostData({  //DISPATCHES FETCH WITH QUERY URL + "AFTER"
+  setTimeout(()=>{  
+    dispatch(fetchPostData({  //DISPATCHES FETCH WITH QUERY URL + "AFTER"
     firstPage: false,
     url:nextUrl
-  }));
+    }));
+  }, 7000);
+
   
 }
 ////////
@@ -70,7 +74,7 @@ const loadNextPage=()=>{
     <div>
       <PostSearchBar handleClick={handleClick} handleInput={handleInput}/>
       <PostNavigation changePage={setPage} page={page} url={url} postData={data} listPageHandler={setListPage} listPage={listPage}/>
-      {data[0]&& <PostDisplay searchNum={searchNum} items={data} hasNextPage={data[0].data.after?true:false} page={page} listPage={listPage} isNextPageLoading={apiStatus} loadNextPage={loadNextPage} pageNum={pageNum}/>}
+      {data[0]&& <PostDisplay searchNum={searchNum} items={data} hasNextPage={after?true:false} page={page} listPage={listPage} isNextPageLoading={apiStatus} loadNextPage={loadNextPage} pageNum={pageNum}/>}
     </div>
   );
 }
