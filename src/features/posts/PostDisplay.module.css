@@ -1,0 +1,41 @@
+.postWindow{
+    background-color: lightgrey;
+    margin: 20px;
+    width: fit-content;
+    margin:auto;
+    text-align: center;
+    border-radius: 30px; 
+    border: 2px solid black;
+}
+.postPreview{
+    height: 65%;
+    width: 80%;
+    object-fit: contain;
+    display: block;
+    margin: auto;
+}
+.postInfoBox{
+   
+   bottom: 5%;; 
+   width:600px;
+   margin: auto;
+   text-align: center;
+}
+.postTitle{
+    padding-top: 4%;
+}
+.authorName{
+    display: inline-block;
+    width: 40%;
+    margin-right: auto;
+}
+.commentAmount{
+    display: inline-block;
+    width: 20%;
+    margin: auto;
+}
+.score{
+    display: inline-block;
+    width: 20%;
+    margin-left: auto;
+}

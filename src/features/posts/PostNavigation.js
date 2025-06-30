@@ -37,10 +37,5 @@ export const PostNavigation = (props) => {
     */
 
     
-    return(
-    <div>
-        <button value="prev">PREV</button>
-        <button value="next">NEXT</button>
-    </div>
-    )
+    
 }

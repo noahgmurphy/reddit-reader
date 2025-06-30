@@ -1,0 +1,24 @@
+.searchContainer{
+    position: relative;
+    text-align: center;
+    background-color: lightgray;
+    width: 50%;
+    height: 40px;
+    border-radius: 30px;
+    margin: 20px auto;
+
+    
+}
+
+.searchInput{
+    display: inline;
+    height: 20px;
+}
+
+.barContainer{
+   position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);  
+  margin: auto;
+}

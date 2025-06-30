@@ -8,11 +8,13 @@ import { createAsyncThunk, createSlice, current} from '@reduxjs/toolkit';
         if(arg && arg.firstPage===true){
            url += '/search.json?q=';
            url += arg.url;
+           url += "&raw_json=1"
         }
         else if (arg && arg.firstPage===false){
             url += '/search.json?q=';
             url += arg.url;
             url += state.posts.after;
+            url += "&raw_json=1"
         }
         else{
             url += '.json';

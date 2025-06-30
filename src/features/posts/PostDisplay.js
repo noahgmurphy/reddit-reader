@@ -1,7 +1,8 @@
 import React from 'react';
-import { FixedSizeList as List } from 'react-window';
+import { VariableSizeList as List } from 'react-window';
 import InfiniteLoader from 'react-window-infinite-loader';
-import {useState} from 'react';
+import {useRef, useState, useEffect, useCallback} from 'react';
+import styles from './PostDisplay.module.css'
 
 export const PostDisplay = ({
     
@@ -12,17 +13,41 @@ export const PostDisplay = ({
     pageNum
 }, props) => {
 
-
+const rowHeights = useRef({});
+const listRef = useRef();
+const getItemSize = useCallback(index => {
+    return rowHeights.current[index]||50;
+}, [])
 
 const Row = ({index, style}) => {
-   
+    const itemRef = useRef(null);
+    
+    useEffect(()=>{
+        if(itemRef.current){
+            rowHeights.current[index] = itemRef.current.clientHeight + 20;
+            listRef.current.resetAfterIndex(index, true);
+        }
+        
+    }, [index]);
+    
     let content;
     if(!isItemLoaded(index)){
         content = "Loading..."
     }
     else{
-        content = items[0].data.children[index].data.title;
+        content = (
+        <div ref={itemRef} className={styles.postWindow}>
+            <h3 className={styles.postTitle}>{items[0].data.children[index].data.title}</h3>
+            {items[0].data.children[index].data.preview&&<img className={styles.postPreview} src={items[0].data.children[index].data.preview.images[0].source.url}/>}
+            <div className={styles.postInfoBox}>
+                <p className={styles.authorName}>Posted by {items[0].data.children[index].data.author}</p>
+                <p className={styles.commentAmount}>{items[0].data.children[index].data.num_comments} Comments</p>
+                <p className={styles.score}>&#x2193;{items[0].data.children[index].data.score}&#x2191;</p>
+            </div>
+        </div>
+    );
     }
+    
     return <div style={style}>{content}</div>
 };
 
@@ -41,11 +66,11 @@ return(
             {items[0]&&
             <List 
             onItemsRendered={onItemsRendered}
-            ref={ref}
-            height={150}
+            ref={listRef}
+            height={window.innerHeight}
             itemCount={itemCount}
-            itemSize={35}
-            width={700}>
+            itemSize={getItemSize}
+            width={"100%"}>
                 {Row}
             </List>
             }
