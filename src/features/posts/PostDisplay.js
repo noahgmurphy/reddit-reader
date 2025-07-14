@@ -2,7 +2,8 @@ import React from 'react';
 import { VariableSizeList as List } from 'react-window';
 import InfiniteLoader from 'react-window-infinite-loader';
 import {useRef, useState, useEffect, useCallback} from 'react';
-import styles from './PostDisplay.module.css'
+import styles from './PostDisplay.module.css';
+import { Link } from 'react-router-dom';
 
 export const PostDisplay = ({
     
@@ -41,7 +42,7 @@ const Row = ({index, style}) => {
             {items[0].data.children[index].data.preview&&<img className={styles.postPreview} src={items[0].data.children[index].data.preview.images[0].source.url}/>}
             <div className={styles.postInfoBox}>
                 <p className={styles.authorName}>Posted by {items[0].data.children[index].data.author}</p>
-                <p className={styles.commentAmount}>{items[0].data.children[index].data.num_comments} Comments</p>
+                <Link to='/detailedview' className={styles.commentAmount}>{items[0].data.children[index].data.num_comments} Comments</Link>
                 <p className={styles.score}>&#x2193;{items[0].data.children[index].data.score}&#x2191;</p>
             </div>
         </div>

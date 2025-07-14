@@ -2,10 +2,10 @@ import './App.css';
 import {useSelector , useDispatch} from 'react-redux';
 import { fetchPostData } from './features/posts/postsSlice.js';
 import {useState} from 'react';
-import { PostSearchBar } from './features/posts/PostSearchBar.js'
-import { PostNavigation } from './features/posts/PostNavigation.js'
+import { PostSearchBar } from './features/posts/PostSearchBar.js';
+import { PostDetailedView } from './features/posts/PostDetailedView.js';
 import { PostDisplay } from './features/posts/PostDisplay.js';
-
+import { RouterProvider, createBrowserRouter, Route, createRoutesFromElements, Routes} from 'react-router-dom';
 function App() {
   const [page, setPage] = useState(0);
   
@@ -70,12 +70,22 @@ const loadNextPage=()=>{
   
 }
 ////////
+//Router
+  const router = createBrowserRouter(createRoutesFromElements(
+    <Route>
+      <Route path='/detailedview' element={<PostDetailedView/>}/>
+      <Route path='/' element={
+        <div>
+          <PostSearchBar handleClick={handleClick} handleInput={handleInput}/>
+          {data[0]&&<PostDisplay searchNum={searchNum} items={data} hasNextPage={after?true:false} page={page} listPage={listPage} isNextPageLoading={apiStatus} loadNextPage={loadNextPage} pageNum={pageNum}/>}
+        </div>
+      }/>
+      
+    </Route>
+  ))
+////////
   return (
-    <div>
-      <PostSearchBar handleClick={handleClick} handleInput={handleInput}/>
-      <PostNavigation changePage={setPage} page={page} url={url} postData={data} listPageHandler={setListPage} listPage={listPage}/>
-      {data[0]&& <PostDisplay searchNum={searchNum} items={data} hasNextPage={after?true:false} page={page} listPage={listPage} isNextPageLoading={apiStatus} loadNextPage={loadNextPage} pageNum={pageNum}/>}
-    </div>
+   <RouterProvider router={router}/>
   );
 }
 
