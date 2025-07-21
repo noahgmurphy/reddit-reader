@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice, current} from '@reduxjs/toolkit';
 
- export const fetchPostData = createAsyncThunk(
+export const fetchPostData = createAsyncThunk(
     'posts/fetchPostData',
     async(arg, {getState})=>{
         let state = getState();
@@ -17,6 +17,7 @@ import { createAsyncThunk, createSlice, current} from '@reduxjs/toolkit';
             url += "&raw_json=1"
         }
         else{
+            console.log("else called")
             url += '.json';
         }
         console.log(url)
@@ -25,26 +26,44 @@ import { createAsyncThunk, createSlice, current} from '@reduxjs/toolkit';
         return {
             data:data,
             firstPage: arg.firstPage
-
         };
     }
  )
+
+ export const fetchPostComments = createAsyncThunk(
+    'posts/fetchPostComments',
+    async(arg)=>{
+        let url = 'https://www.reddit.com';
+        url += arg.permalink;
+        url += '.json';
+        url += "?&raw_json=1"
+        console.log(url);
+        const response = await fetch(url);
+        const data = await response.json();
+        return {
+            data : data
+        };
+    })
+
  const postsSlice = createSlice({
     name: 'posts',
     initialState: {postData:[], 
         isLoading: false,
-        after: ""
+        after: "",
+        commentsData: [],
+        loadedComments: ""
     },
     reducers:{},
     extraReducers: builder => {
+        //POST FETCH
         builder.addCase(fetchPostData.pending, (state, action) =>{
             console.log("loading");
             state.isLoading = true;
             
         })
         builder.addCase(fetchPostData.fulfilled, (state, action) => {
-           console.log("success");
-           state.isLoading = false;
+            console.log("success");
+            state.isLoading = false;
             if(action.payload.firstPage === true){
             state.postData = [];
             state.postData[0] = action.payload.data;
@@ -55,14 +74,27 @@ import { createAsyncThunk, createSlice, current} from '@reduxjs/toolkit';
                 state.after=action.payload.data.data.after;
                 
             }
-        
-           const data = (current(state));
-           //console.log(data[0][0].data.children[0].data);
-           console.log(data)
+            const data = (current(state));
+            console.log(data)
         })
         builder.addCase(fetchPostData.rejected, (state) => {
             console.log("failed");
             state.isLoading = false;
+        })
+        //COMMENTS FETCH
+        builder.addCase(fetchPostComments.pending, (state, action) =>{
+            state.loadedComments = "pending";
+            console.log("loading comments")
+        })
+        builder.addCase(fetchPostComments.fulfilled, (state, action) => {
+            state.loadedComments = "success";
+            console.log("success loading comments")
+            state.commentsData = action.payload.data;
+            const data = (current(state));
+        })
+        builder.addCase(fetchPostComments.rejected, (state) => {
+            state.loadedComments = "failed";
+            console.log("failed to load comments")
         })
     }
 })

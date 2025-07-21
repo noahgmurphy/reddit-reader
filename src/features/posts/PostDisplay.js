@@ -3,7 +3,9 @@ import { VariableSizeList as List } from 'react-window';
 import InfiniteLoader from 'react-window-infinite-loader';
 import {useRef, useState, useEffect, useCallback} from 'react';
 import styles from './PostDisplay.module.css';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import {useSelector , useDispatch} from 'react-redux';
+import { fetchPostComments } from './postsSlice';
 
 export const PostDisplay = ({
     
@@ -11,8 +13,23 @@ export const PostDisplay = ({
     isNextPageLoading, 
     items, 
     loadNextPage,
-    pageNum
 }, props) => {
+const commentsData = useSelector((state)=>state.posts.commentsData)
+const dispatch = useDispatch();
+const navigate = useNavigate();
+const thunkStatus = useSelector((state)=>state.posts.loadedComments);
+const handleLinkClick = (event, permalink) => {
+    event.preventDefault();
+    dispatch(fetchPostComments({
+    permalink: permalink
+}))}
+
+useEffect(()=>{
+    if (thunkStatus === "success"){
+        navigate('/detailedview', {state: commentsData});
+    }
+
+}, [commentsData])
 
 const rowHeights = useRef({});
 const listRef = useRef();
@@ -28,7 +45,6 @@ const Row = ({index, style}) => {
             rowHeights.current[index] = itemRef.current.clientHeight + 20;
             listRef.current.resetAfterIndex(index, true);
         }
-        
     }, [index]);
     
     let content;
@@ -42,13 +58,12 @@ const Row = ({index, style}) => {
             {items[0].data.children[index].data.preview&&<img className={styles.postPreview} src={items[0].data.children[index].data.preview.images[0].source.url}/>}
             <div className={styles.postInfoBox}>
                 <p className={styles.authorName}>Posted by {items[0].data.children[index].data.author}</p>
-                <Link to='/detailedview' className={styles.commentAmount}>{items[0].data.children[index].data.num_comments} Comments</Link>
+                <Link onClick={(event)=>handleLinkClick(event, items[0].data.children[index].data.permalink)} className={styles.commentAmount}>{items[0].data.children[index].data.num_comments} Comments</Link>
                 <p className={styles.score}>&#x2193;{items[0].data.children[index].data.score}&#x2191;</p>
             </div>
         </div>
     );
     }
-    
     return <div style={style}>{content}</div>
 };
 

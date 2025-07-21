@@ -34,28 +34,22 @@ function App() {
   const handleClick = () => {
     let url = '';
     for(let i=0; i<input.length; i++){
-        if(input[i]===' '){
-            url+='%20'
-           
-        }
-        else{
-            url+=input[i];
-        }
+      if(input[i]===' '){
+        url+='%20'
+      }
+      else{
+        url+=input[i];
+      }
     }
-    console.log(url);
     setUrl(url);
     setInput('')
     dispatch(fetchPostData({
         firstPage: true,
         url:url
     }))
-    
-    
-}
-
+  }
 //LOAD NEXT PAGE
 const loadNextPage=()=>{
-
   console.log("load next page")
   let nextUrl = url; //DECLARE NEW URL
   nextUrl+="&after=" //SET IT EQUAL TO SEARCH URL + "AFTER" QUERY
@@ -77,7 +71,7 @@ const loadNextPage=()=>{
       <Route path='/' element={
         <div>
           <PostSearchBar handleClick={handleClick} handleInput={handleInput}/>
-          {data[0]&&<PostDisplay searchNum={searchNum} items={data} hasNextPage={after?true:false} page={page} listPage={listPage} isNextPageLoading={apiStatus} loadNextPage={loadNextPage} pageNum={pageNum}/>}
+          {data[0]&&<PostDisplay searchNum={searchNum} items={data} hasNextPage={after?true:false} listPage={listPage} isNextPageLoading={apiStatus} loadNextPage={loadNextPage}/>}
         </div>
       }/>
       
@@ -85,7 +79,7 @@ const loadNextPage=()=>{
   ))
 ////////
   return (
-   <RouterProvider router={router}/>
+    <RouterProvider router={router}/>
   );
 }
 
