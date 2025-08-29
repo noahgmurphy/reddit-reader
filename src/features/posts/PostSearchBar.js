@@ -1,27 +1,32 @@
 import React from 'react';
 import styles from './PostSearchBar.module.css'
-import {useState} from 'react';
+import { Outlet, useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux'
 export const PostSearchBar = (props) => {
-    const [showSearchBar, setShowSearchBar] = useState(true);
-    let lastScrollTop = 0;
-    window.addEventListener('scroll', function(){
-        let scrollTop = window.pageYOffset || this.document.documentElement.scrollTop;
-        if(scrollTop > lastScrollTop){
-            setShowSearchBar(false);
-        }
-        if(scrollTop < lastScrollTop){
-            setShowSearchBar(true);
-        }
-        lastScrollTop = scrollTop;
-    });
+    const showHomeFilters= useSelector((state)=>state.posts.showHomeFilters);
+    const navigate = useNavigate();  
 return(
-    <div style={{display:showSearchBar?'block':'none'}} className={styles.searchWrapper}>
-        <div className={styles.searchContainer}>
-            <div className={styles.barContainer}>
-                <input className={styles.searchInput}onChange={(e)=>{props.handleInput(e.target.value)}}></input>
-                <button className={styles.searchButton} onClick={()=>{props.handleClick()}}>SEARCH</button>
+    <div>
+        <div style={{display:props.showSearchBar?'inline-block':'none'}} className={styles.searchWrapper}>
+            <div className={styles.searchContainer}>
+                <div className={styles.barContainer}>
+                    <input value={props.input} className={styles.searchInput}onChange={(e)=>{props.handleInput(e.target.value)}}></input>
+                    <button className={styles.searchButton} onClick={()=>{props.handleClick(); navigate('/');}}>SEARCH</button>
+                </div>
+            </div>
+            <div className={styles.filterContainer}>
+                <select onChange={(e)=>{props.handleFilter(e.target.value)}}>
+                    {showHomeFilters && <option value="best" selected>Best</option>}
+                    {!showHomeFilters && <option value="relevance">Relevance</option>}
+                    <option value="hot">Hot</option>
+                    <option value="new">New</option>
+                    <option value="top">Top</option>
+                    {showHomeFilters && <option value="rising">Rising</option>}
+                    {!showHomeFilters && <option value="comments">Comment Count</option>}
+                </select>
             </div>
         </div>
+        <Outlet/>
     </div>
 )
 }

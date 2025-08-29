@@ -1,12 +1,31 @@
 import React from 'react';
-import { useLocation } from 'react-router-dom';
 import Linkify from 'react-linkify'
-export const PostDetailedView = () =>{
-    const location = useLocation();
-    const commentsData = location.state || {};
-
+import { useSelector } from 'react-redux';
+import { useEffect } from 'react';
+export const PostDetailedView = ({setShowSearchBar, showSearchBar, handleLoadMoreComments}) =>{
+    const commentsData = useSelector((state)=>state.posts.commentsData);
+//SEARCH BAR VISIBILITY
+    useEffect(()=> {
+        let lastScrollTop = 0;
+        const handleScroll = (e) => {
+            e.preventDefault();
+            let scrollTop = window.pageYOffset;
+            if(scrollTop > lastScrollTop){
+                setShowSearchBar(false);
+            }
+            if(scrollTop < lastScrollTop - 100 || scrollTop <= 50){
+                setShowSearchBar(true);
+            }
+            lastScrollTop = scrollTop;
+            }
+        window.addEventListener('scroll', handleScroll);  
+        return () => {
+            window.removeEventListener('scroll', handleScroll )
+        }
+    }, [])
+    
     return(
-    <div>
+    <div style={{marginTop: showSearchBar?'70px': '0px'}}>
     {commentsData[1]&&
         <div>
             <h3>{commentsData[0].data.children[0].data.title}</h3>
@@ -17,6 +36,7 @@ export const PostDetailedView = () =>{
                 </Linkify>
             ))}
         </div>}
+    {commentsData[1].data.children[commentsData[1].data.children.length-1].kind==="more"&&commentsData[1].data.children[commentsData[1].data.children.length-1].data.depth===0 && <button onClick={()=>{handleLoadMoreComments(commentsData)}}>LOAD MORE...</button>}
     </div>
 )
     
