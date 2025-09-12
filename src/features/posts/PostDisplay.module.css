@@ -1,11 +1,12 @@
 .postWindow{
-    background-color: lightgrey;
-    margin: 20px;
-    width: fit-content;
+    background-color: white;
+    /*margin: 20px;*/
+    height: 50%;
+    width: 80%;
     margin:auto;
+    margin-top: 4%;
     text-align: center;
-    border-radius: 30px; 
-    border: 2px solid black;
+    position: relative;
 }
 .postPreview{
     height: 65%;
@@ -15,27 +16,53 @@
     margin: auto;
 }
 .postInfoBox{
-   
-   bottom: 5%;; 
-   width:600px;
+    
+   position: absolute;
+   bottom: 0;
    margin: auto;
+   right: 8%;
+   width:90%;
+   margin:  auto ;
    text-align: center;
 }
 .postTitle{
     padding-top: 4%;
+    font-family: Noto Sans;
+    font-size: 20px;
 }
 .authorName{
     display: inline-block;
-    width: 40%;
+    width: 30%;
     margin-right: auto;
+    background-color: #1164FE;
+    border-radius: 30px;
+    color: white;
+    font-size: 15px;
+    text-align: center;
 }
 .commentAmount{
     display: inline-block;
-    width: 20%;
+    font-size: 15px;
+    background-color: #1164FE;
+    color: white;
+    border-radius: 30px;
+
+    width: 30%;
     margin: auto;
 }
 .score{
     display: inline-block;
-    width: 20%;
-    margin-left: auto;
+    background-color: #1164FE;
+    margin-left: 10%;
+    color: white;
+    border-radius: 30px;
+    width: 10%;
+}
+.reactWindow{
+    background-color:lightgrey;
+}
+.noPreview{
+    display: inline-block;
+    position: relative;
+    top: 5%;
 }

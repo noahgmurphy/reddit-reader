@@ -1,7 +1,7 @@
 import React from 'react';
 import { VariableSizeList as List } from 'react-window';
 import InfiniteLoader from 'react-window-infinite-loader';
-import {useRef, useState, useEffect, useCallback} from 'react';
+import {useRef, useState, useEffect, useLayoutEffect, useCallback} from 'react';
 import styles from './PostDisplay.module.css';
 import { Link, useNavigate } from 'react-router-dom';
 import {useSelector , useDispatch} from 'react-redux';
@@ -22,7 +22,7 @@ const navigate = useNavigate();
 const commentsData = useSelector((state)=>state.posts.commentsData)
 const thunkStatus = useSelector((state)=>state.posts.loadedComments);
 const showInfiniteScroll = useSelector((state)=>state.posts.showInfiniteScroll);
-
+const loadedPosts = useSelector((state)=>state.posts.loadedPosts);
 //CALLS RESET WINDOW WHEN NEW SEARCH DATA IS ACQUIRED 
 useEffect(()=>{
     handleResetWindow();
@@ -73,11 +73,11 @@ const handleScroll = ({scrollOffset, scrollDirection}) => {
 }
 
 
-const rowHeights = useRef({});
+const rowHeights = useRef([]);
 const listRef = useRef();
 //GETS ITEM HEIGHT FOR EACH DATA ITEM
 const getItemSize = useCallback(index => {
-    return rowHeights.current[index]||500;
+    return rowHeights.current[index]||900;
 }, [])
 
 //CREATES ROW STRUCTURE FOR REACT WINDOW
@@ -85,11 +85,15 @@ const Row = ({index, style}) => {
     const itemRef = useRef(null);
     
     useEffect(()=>{
-        if(itemRef.current){
+        if(itemRef.current&&listRef.current){
+            console.log("reset");
+            console.log(listRef.current);
+            console.log(index);
             rowHeights.current[index] = itemRef.current.clientHeight + 20;
             listRef.current.resetAfterIndex(index, true);
         }
-    }, [index]);
+        
+    }, [loadedPosts, index]);
     
     let content;
     if(!isItemLoaded(index)){
@@ -102,8 +106,8 @@ const Row = ({index, style}) => {
     }
     else{
         content = (
-        <div ref={itemRef} className={styles.postWindow}>
-            <h3 className={styles.postTitle}>{items[0].data.children[index].data.title}</h3>
+        <div style={{height:items[0].data.children[index].data.preview?'500px':' 200px'}} ref={itemRef} className={styles.postWindow}>
+            <h3 className={`${styles.postTitle} ${items[0].data.children[index].data.preview?'':styles.noPreview}`}>{items[0].data.children[index].data.title}</h3>
             {items[0].data.children[index].data.preview&&<img className={styles.postPreview} src={items[0].data.children[index].data.preview.images[0].source.url}/>}
             <div className={styles.postInfoBox}>
                 <p className={styles.authorName}>Posted by {items[0].data.children[index].data.author}</p>
@@ -132,12 +136,16 @@ return(
                 {items[0]&&
                 <List 
                 onItemsRendered={onItemsRendered}
-                ref={listRef}
+                ref={list=>{
+                    ref(list);
+                    listRef.current = list;
+                }}
                 height={window.innerHeight}
                 itemCount={itemCount}
                 itemSize={getItemSize}
                 width={"100%"}
                 onScroll={handleScroll}
+                className={styles.reactWindow}
                 style={{zIndex:1, marginTop: showSearchBar?'70px':'0px' }}>
                     {Row}
                 </List>
