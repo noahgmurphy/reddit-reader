@@ -5,7 +5,7 @@ import { useState, useEffect, useRef } from 'react';
 import { PostSearchBar } from './features/posts/PostSearchBar.js';
 import { PostDetailedView } from './features/posts/PostDetailedView.js';
 import { PostDisplay } from './features/posts/PostDisplay.js';
-import { RouterProvider, createBrowserRouter, Route, createRoutesFromElements} from 'react-router-dom';
+import { RouterProvider, BrowserRouter, createBrowserRouter, Route, createRoutesFromElements, useLocation} from 'react-router-dom';
 import { fetchPostComments } from './features/posts/postsSlice.js';
 
 function App() {
@@ -17,19 +17,48 @@ function App() {
   const after = useSelector((state)=>state.posts.after);
   const apiStatus = useSelector((state)=>state.posts.isLoading);
   const timeoutId = useRef(null);
-//FETCHES POPULAR PAGE FOR FIRST MOUNT
+  const [entry] = performance.getEntriesByType('navigation');
+//HANDLES FIRST MOUNT, REFRESH, AND REDIRECT
   useEffect(()=>{
-    setUrl("/r/popular");
-    dispatch(fetchPostData({
-          firstPage: true,
-          url:"/r/popular"
+    const handlePopState = (event) => {
+      window.location.reload();
+    }
+    window.addEventListener('popstate', handlePopState);
+    if(entry && entry.type==="reload" && window.location.pathname === "/" ){
+      const urlFromRefresh = localStorage.getItem('storedUrl');
+      setUrl(urlFromRefresh);
+      dispatch(fetchPostData({
+        firstPage: true,
+        url:urlFromRefresh
       }))
+    }
+    else if(entry && entry.type==="reload" && window.location.pathname==="/detailedview"){
+      const commentLink = localStorage.getItem('commentLink');
+      dispatch(fetchPostComments({
+        firstPage: true,
+        permalink: commentLink,
+      }));
+    }
+    else{
+      localStorage.clear();
+      localStorage.setItem('storedUrl', "/r/popular");
+      setUrl("/r/popular");
+      dispatch(fetchPostData({
+        firstPage: true,
+        url:"/r/popular"
+      }))
+    }
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    }
   },[])
 //HANDLES INPUT AND SEARCH BUTTON LOGIC
   const handleInput = (value) => {
     setInput(value);
   }
   const handleClick = () => {
+    localStorage.clear();
+    if(input && input.trim()!=="" ){
     console.log(timeoutId);
     clearTimeout(timeoutId.current);
     let url = '';
@@ -41,12 +70,14 @@ function App() {
         url+=input[i];
       }
     }
+    localStorage.setItem('storedUrl', url);
     setUrl(url);
     setInput('')
     dispatch(fetchPostData({
         firstPage: true,
         url:url
     }))
+    }
   }
 //HANDLES FILTER SETTING
   const handleFilter = (filter) => {
@@ -60,16 +91,16 @@ function App() {
   }
 //LOAD NEXT PAGE FOR INFINITE LOADER
   const loadNextPage=()=>{
-      console.log("load next page")
-      let nextUrl = url; 
-      nextUrl+="&after="
-      timeoutId.current = setTimeout(()=>{  
-        dispatch(fetchPostData({ 
+    console.log("load next page")
+    let nextUrl = url; 
+    nextUrl+="&after="
+    timeoutId.current = setTimeout(()=>{  
+      dispatch(fetchPostData({ 
         firstPage: false,
         url:nextUrl
-        }));
-      }, 7000);
-    }
+      }));
+    }, 7000);
+  }
 //LOAD MORE COMMENTS FOR DETAILED VIEW
   const handleLoadMoreComments = (commentsData) => {
     if(commentsData[1].data.children[commentsData[1].data.children.length-1].kind==="more"){
@@ -77,19 +108,17 @@ function App() {
           firstPage: false,
           parentId: commentsData[1].data.children[commentsData[1].data.children.length-1].data.parent_id,
           children: commentsData[1].data.children[commentsData[1].data.children.length-1].data.children
-          }))
+      }))
     }
   }
-
-
 //REACT ROUTER CODE 
   const router = createBrowserRouter(createRoutesFromElements(
     <Route>
-      <Route path='/' element={<PostSearchBar  handleFilter={handleFilter}setShowSearchBar={setShowSearchBar} showSearchBar={showSearchBar} handleClick={handleClick} handleInput={handleInput} input={input}/>}>
+      <Route element={<PostSearchBar  handleFilter={handleFilter}setShowSearchBar={setShowSearchBar} showSearchBar={showSearchBar} handleClick={handleClick} handleInput={handleInput} input={input}/>}>
         <Route path='/detailedview' element={<PostDetailedView setShowSearchBar={setShowSearchBar} showSearchBar={showSearchBar} handleLoadMoreComments={handleLoadMoreComments}/>}/>
-        <Route index element={
+        <Route path='/' index element={
           <div>
-            {data[0]&&<PostDisplay url={url} setShowSearchBar={setShowSearchBar} showSearchBar={showSearchBar} items={data} hasNextPage={after?true:false} isNextPageLoading={apiStatus} loadNextPage={loadNextPage}/>}
+            {data[0]&&<PostDisplay setUrl={setUrl} url={url} setShowSearchBar={setShowSearchBar} showSearchBar={showSearchBar} items={data} hasNextPage={after?true:false} isNextPageLoading={apiStatus} loadNextPage={loadNextPage}/>}
           </div>
         }/>
       </Route>

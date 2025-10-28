@@ -72,7 +72,10 @@ export const fetchPostComments = createAsyncThunk(
         console.log(url);
         const response = await fetch(url);
         const data = await response.json();
-        return {data:data};
+        return {
+            data:data,
+            firstPage: arg.firstPage
+        };
         })
 
 const postsSlice = createSlice({
@@ -129,7 +132,7 @@ const postsSlice = createSlice({
         builder.addCase(fetchPostComments.fulfilled, (state, action) => {
             state.loadedComments = "success";
             console.log("success loading comments");
-            if(state.commentsData.length===0){
+            if(state.commentsData.length===0||action.payload.firstPage){
                 state.commentsData = action.payload.data;
             }
             else{

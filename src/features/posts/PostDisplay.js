@@ -3,9 +3,10 @@ import { VariableSizeList as List } from 'react-window';
 import InfiniteLoader from 'react-window-infinite-loader';
 import {useRef, useState, useEffect, useLayoutEffect, useCallback} from 'react';
 import styles from './PostDisplay.module.css';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation, useNavigationType} from 'react-router-dom';
 import {useSelector , useDispatch} from 'react-redux';
 import { fetchPostComments } from './postsSlice';
+import { fetchPostData } from './postsSlice';
 
 export const PostDisplay = ({
     hasNextPage,
@@ -14,35 +15,32 @@ export const PostDisplay = ({
     loadNextPage,
     setShowSearchBar,
     showSearchBar,
-    url
+    url,
+    setUrl
 }) => {
 
+const navigationType = useNavigationType();
+const location = useLocation();
 const dispatch = useDispatch();
 const navigate = useNavigate();
 const commentsData = useSelector((state)=>state.posts.commentsData)
 const thunkStatus = useSelector((state)=>state.posts.loadedComments);
 const showInfiniteScroll = useSelector((state)=>state.posts.showInfiniteScroll);
 const loadedPosts = useSelector((state)=>state.posts.loadedPosts);
+const [entry] = performance.getEntriesByType('navigation');
 //CALLS RESET WINDOW WHEN NEW SEARCH DATA IS ACQUIRED 
 useEffect(()=>{
     handleResetWindow();
 }, [items[0].data.children[0]])
-
-//REDIRECTS TO DETAILED VIEW WHEN COMMENTS ARE SUCCESSFULLY FETCHED
-useEffect(()=>{
-    if (thunkStatus === "success" && commentsData.length>0 ){
-        navigate('/detailedview', {state: commentsData});
-        console.log("rerouted");
-    }
-}, [commentsData])
-
 //FETCHES FIRST BATCH OF COMMENTS
 const handleLinkClick = (event, permalink) => {
     event.preventDefault();
+    localStorage.setItem('commentLink', permalink)
     dispatch(fetchPostComments({
     firstPage: true,
     permalink: permalink
-    }))
+    }));
+    navigate('/detailedview')
 }
 //RESETS WINDOW POSITION TO TOP
 const handleResetWindow = () => {
@@ -53,6 +51,7 @@ const handleResetWindow = () => {
 //SHOWS SEARCH BAR BASED ON SCROLL DIRECTION
 const [lastOffset, setLastOffset] = useState(0);
 const [hasRun, setHasRun] = useState(false);
+
 const handleScroll = ({scrollOffset, scrollDirection}) => {
     if(scrollDirection==="backward" && scrollOffset-lastOffset<=-20 && hasRun===true){
         setShowSearchBar(true);
@@ -72,12 +71,11 @@ const handleScroll = ({scrollOffset, scrollDirection}) => {
     }
 }
 
-
+//GETS ITEM HEIGHT FOR EACH DATA ITEM
 const rowHeights = useRef([]);
 const listRef = useRef();
-//GETS ITEM HEIGHT FOR EACH DATA ITEM
 const getItemSize = useCallback(index => {
-    return rowHeights.current[index]||900;
+    return rowHeights.current[index]||100;
 }, [])
 
 //CREATES ROW STRUCTURE FOR REACT WINDOW
@@ -86,9 +84,9 @@ const Row = ({index, style}) => {
     
     useEffect(()=>{
         if(itemRef.current&&listRef.current){
-            console.log("reset");
+            /*console.log("reset");
             console.log(listRef.current);
-            console.log(index);
+            console.log(index);*/
             rowHeights.current[index] = itemRef.current.clientHeight + 20;
             listRef.current.resetAfterIndex(index, true);
         }
@@ -97,24 +95,28 @@ const Row = ({index, style}) => {
     
     let content;
     if(!isItemLoaded(index)){
-        if(url.includes("/r/popular")){
-            content="";
-        }
-        else{
-        content = "Loading..."
-        }
+        content = (
+            <div className={styles.loadingContainer}>
+                <img className={styles.loadingGif} src="https://media.tenor.com/Pq1cZiuhlEEAAAAi/rajinikanth.gif"/>
+            </div>
+        )
     }
     else{
         content = (
-        <div style={{height:items[0].data.children[index].data.preview?'500px':' 200px'}} ref={itemRef} className={styles.postWindow}>
-            <h3 className={`${styles.postTitle} ${items[0].data.children[index].data.preview?'':styles.noPreview}`}>{items[0].data.children[index].data.title}</h3>
-            {items[0].data.children[index].data.preview&&<img className={styles.postPreview} src={items[0].data.children[index].data.preview.images[0].source.url}/>}
-            <div className={styles.postInfoBox}>
-                <p className={styles.authorName}>Posted by {items[0].data.children[index].data.author}</p>
-                <Link onClick={(event)=>handleLinkClick(event, items[0].data.children[index].data.permalink)} className={styles.commentAmount}>{items[0].data.children[index].data.num_comments} Comments</Link>
-                <p className={styles.score}>&#x2193;{items[0].data.children[index].data.score}&#x2191;</p>
+            <div style={{height:items[0].data.children[index].data.preview?'500px':' 150px'}} ref={itemRef} className={styles.postWindow}>
+                <div className={styles.textContainer}>
+                <h3 className={`${styles.postTitle} ${items[0].data.children[index].data.preview?'':styles.noPreview}`}>{items[0].data.children[index].data.title}</h3>
+                </div>
+                {items[0].data.children[index].data.preview&&<img className={styles.postPreview} src={items[0].data.children[index].data.preview.images[0].source.url}/>}
+                
+                <div className={styles.infoContainer}>
+                    <div className={styles.postInfoBox}>
+                        <p className={styles.score}>&#x2193;{items[0].data.children[index].data.score}&#x2191;</p>
+                        <p className={styles.authorName}>Posted by {items[0].data.children[index].data.author}</p>
+                        <Link to="/detailedview" onClick={(event)=>handleLinkClick(event, items[0].data.children[index].data.permalink)} className={styles.commentAmount}>{items[0].data.children[index].data.num_comments} Comments</Link>
+                    </div>
+                </div>
             </div>
-        </div>
         );
     }
     return <div style={style}>{content}</div>

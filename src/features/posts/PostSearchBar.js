@@ -11,20 +11,21 @@ return(
             <div className={styles.searchContainer}>
                 <div className={styles.barContainer}>
                     <input value={props.input} className={styles.searchInput}onChange={(e)=>{props.handleInput(e.target.value)}}></input>
-                    <button className={styles.searchButton} onClick={()=>{props.handleClick(); navigate('/');}}>SEARCH</button>
+                    <button className={styles.searchButton} onClick={()=>{props.handleClick(); navigate('/');}}>&#x2315;</button>
+                </div>
+                <div className={styles.filterContainer}>
+                    <select className={styles.filterInput} onChange={(e)=>{props.handleFilter(e.target.value)}}>
+                        {showHomeFilters && <option value="best" selected>Best</option>}
+                        {!showHomeFilters && <option value="relevance">Relevance</option>}
+                        <option value="hot">Hot</option>
+                        <option value="new">New</option>
+                        <option value="top">Top</option>
+                        {showHomeFilters && <option value="rising">Rising</option>}
+                        {!showHomeFilters && <option value="comments">Comment Count</option>}
+                    </select>
                 </div>
             </div>
-            <div className={styles.filterContainer}>
-                <select onChange={(e)=>{props.handleFilter(e.target.value)}}>
-                    {showHomeFilters && <option value="best" selected>Best</option>}
-                    {!showHomeFilters && <option value="relevance">Relevance</option>}
-                    <option value="hot">Hot</option>
-                    <option value="new">New</option>
-                    <option value="top">Top</option>
-                    {showHomeFilters && <option value="rising">Rising</option>}
-                    {!showHomeFilters && <option value="comments">Comment Count</option>}
-                </select>
-            </div>
+           
         </div>
         <Outlet/>
     </div>

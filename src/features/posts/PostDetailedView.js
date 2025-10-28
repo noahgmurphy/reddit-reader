@@ -1,9 +1,13 @@
 import React from 'react';
 import Linkify from 'react-linkify'
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch} from 'react-redux';
 import { useEffect } from 'react';
+import { fetchPostComments } from './postsSlice';
+
 export const PostDetailedView = ({setShowSearchBar, showSearchBar, handleLoadMoreComments}) =>{
+    const dispatch = useDispatch();
     const commentsData = useSelector((state)=>state.posts.commentsData);
+    const [entry] = performance.getEntriesByType('navigation');
 //SEARCH BAR VISIBILITY
     useEffect(()=> {
         let lastScrollTop = 0;
@@ -36,7 +40,7 @@ export const PostDetailedView = ({setShowSearchBar, showSearchBar, handleLoadMor
                 </Linkify>
             ))}
         </div>}
-    {commentsData[1].data.children[commentsData[1].data.children.length-1].kind==="more"&&commentsData[1].data.children[commentsData[1].data.children.length-1].data.depth===0 && <button onClick={()=>{handleLoadMoreComments(commentsData)}}>LOAD MORE...</button>}
+    {commentsData[1] && commentsData[1].data.children[commentsData[1].data.children.length-1].kind==="more"&&commentsData[1].data.children[commentsData[1].data.children.length-1].data.depth===0 && <button onClick={()=>{handleLoadMoreComments(commentsData)}}>LOAD MORE...</button>}
     </div>
 )
     
