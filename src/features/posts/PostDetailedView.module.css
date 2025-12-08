@@ -1,0 +1,50 @@
+.commentContainer{
+    position: relative;
+    background-color: lightgray;
+    border-radius: 30px;
+    margin: 10px 20px;
+    padding: 10px;
+}
+
+.commentContainer::before{
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0px;
+    width: 0;
+    height: 0;
+    border: 10px solid transparent;
+    border-right-color: lightgray;
+    border-bottom-color: lightgray;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 10px;
+}
+
+.commentPhoto{
+    display: block;
+    margin: auto;
+    width: 35%;
+    
+}
+
+
+.postDetailsContainer{
+    text-align: center;
+    margin-bottom: 7%;
+}
+
+.loadMoreButton{
+    height: 40px;
+    width: 30%;
+    background-color: #1164FE;
+    color: white;
+    font-size: 20px;
+    text-align: center;
+    line-height: 10px;
+    box-shadow: none;
+    border: none;
+    border-radius: 30px;
+    display: block;
+    margin: auto;
+    margin-bottom: 5px;
+}

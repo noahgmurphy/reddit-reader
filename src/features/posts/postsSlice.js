@@ -1,18 +1,13 @@
 import { createAsyncThunk, createSlice, current} from '@reduxjs/toolkit';
 
-let controller;
+
 export const fetchPostData = createAsyncThunk(
     'posts/fetchPostData',
-    async(arg, {getState})=>{
-        if (controller){
-            console.log("aborted");
-            controller.abort();
-        }
-        controller = new AbortController();
-        const signal = controller.signal;
+    async(arg, {getState, rejectWithValue, signal})=>{
         let state = getState();
         let showHomeFilters;
-        let url = 'https://www.reddit.com'
+        
+        let url = 'https://www.reddit.com';
         if(arg.filter && (!arg.url.includes("/r/popular")) ||arg && arg.firstPage===true && (!arg.url.includes("/r/popular"))){
            url += '/search.json?q=';
            url += arg.url;
@@ -23,6 +18,7 @@ export const fetchPostData = createAsyncThunk(
            url += "&raw_json=1";
            showHomeFilters = false;
         }
+        
         else if (arg && arg.firstPage===false && (!arg.url.includes("/r/popular"))){
             url += '/search.json?q=';
             url += arg.url;
@@ -44,8 +40,24 @@ export const fetchPostData = createAsyncThunk(
             showHomeFilters = true;
         }
         console.log(url)
-        const response = await fetch(url, {signal});
-        const data = await response.json();
+        let response;
+        let data;
+        try{
+            response = await fetch(url, {signal}); 
+            data = await response.json();
+        }
+        
+        catch(error){
+            if(error.name==="AbortError"){
+                const msg = "AbortError"
+                return rejectWithValue(msg);
+            }
+            return rejectWithValue("Something went wrong");
+        }
+        finally{
+             
+        }
+        
         return {
             data:data,
             firstPage: arg.firstPage,
