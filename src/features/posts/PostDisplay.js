@@ -1,12 +1,12 @@
 import React from 'react';
 import { VariableSizeList as List } from 'react-window';
 import InfiniteLoader from 'react-window-infinite-loader';
-import {useRef, useState, useEffect, useLayoutEffect, useCallback} from 'react';
+import {useRef, useState, useEffect, useCallback} from 'react';
 import styles from './PostDisplay.module.css';
-import { Link, useNavigate, useLocation, useNavigationType} from 'react-router-dom';
+import { Link, useNavigate} from 'react-router-dom';
 import {useSelector , useDispatch} from 'react-redux';
 import { fetchPostComments } from './postsSlice';
-import { fetchPostData } from './postsSlice';
+
 
 export const PostDisplay = ({
     hasNextPage,
@@ -15,19 +15,16 @@ export const PostDisplay = ({
     loadNextPage,
     setShowSearchBar,
     showSearchBar,
-    url,
-    setUrl
+    setPendingPromise,
+    handleCancel,
 }) => {
 
-const navigationType = useNavigationType();
-const location = useLocation();
+
+
 const dispatch = useDispatch();
 const navigate = useNavigate();
-const commentsData = useSelector((state)=>state.posts.commentsData)
-const thunkStatus = useSelector((state)=>state.posts.loadedComments);
 const showInfiniteScroll = useSelector((state)=>state.posts.showInfiniteScroll);
 const loadedPosts = useSelector((state)=>state.posts.loadedPosts);
-const [entry] = performance.getEntriesByType('navigation');
 //CALLS RESET WINDOW WHEN NEW SEARCH DATA IS ACQUIRED 
 useEffect(()=>{
     handleResetWindow();        //resets window position to top upon new search data load
@@ -36,10 +33,15 @@ useEffect(()=>{
 const handleLinkClick = (event, permalink) => { 
     event.preventDefault();
     localStorage.setItem('commentLink', permalink)
-    dispatch(fetchPostComments({    //dispatches fetch for comments upon link click
+    handleCancel();
+    const currentPromise = dispatch(fetchPostComments({    //dispatches fetch for comments upon link click
     firstPage: true,
     permalink: permalink
     }));
+    setPendingPromise(currentPromise);
+      currentPromise.finally(()=>{
+      setPendingPromise(prev => prev===currentPromise ? null : prev)
+      });
     navigate('/detailedview')
 }
 //RESETS WINDOW POSITION TO TOP
@@ -84,9 +86,6 @@ const Row = ({index, style}) => {
     
     useEffect(()=>{                                                         //sets height for each item after it loads to avoid clipping
         if(itemRef.current&&listRef.current){
-            /*console.log("reset");
-            console.log(listRef.current);
-            console.log(index);*/
             rowHeights.current[index] = itemRef.current.clientHeight + 20;  //adds 20px for padding/margin
             listRef.current.resetAfterIndex(index, true);                   //resets react window measurements after height change to avoid visual bugs
         }

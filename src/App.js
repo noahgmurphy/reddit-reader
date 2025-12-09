@@ -7,6 +7,7 @@ import { PostDetailedView } from './features/posts/PostDetailedView.js';
 import { PostDisplay } from './features/posts/PostDisplay.js';
 import { RouterProvider, createBrowserRouter, Route, createRoutesFromElements,} from 'react-router-dom';
 import { fetchPostComments } from './features/posts/postsSlice.js';
+import { searchInputTransformHelper } from './utils.js'
 
 function App() {
   const [input, setInput] = useState();
@@ -86,15 +87,8 @@ function App() {
     if(input && input.trim()!=="" ){      //checks if input exists and is not empty string to avoid unnecessary fetches
     console.log(timeoutId);
     clearTimeout(timeoutId.current);      //cancels any delayed dispatches still incoming to avoid race conditions
-    let url = '';
-    for(let i=0; i<input.length; i++){    //iterates through input string
-      if(input[i]===' '){                 //replaces spaces with correct character for api fetch
-        url+='%20'
-      }
-      else{
-        url+=input[i];      
-      }
-    }
+    
+    const url = searchInputTransformHelper(input)
     localStorage.setItem('storedUrl', url);   //stores current url in local storage to restore view upon refresh
     setUrl(url);
     setInput('')
@@ -139,11 +133,16 @@ function App() {
 //LOAD MORE COMMENTS FOR DETAILED VIEW
   const handleLoadMoreComments = (commentsData) => {
     if(commentsData[1].data.children[commentsData[1].data.children.length-1].kind==="more"){    //checks if there are more comments to load
-      dispatch(fetchPostComments({                                                              //dispatches fetch for more comments with necessary parameters to get next set
+      handleCancel();
+      const currentPromise = dispatch(fetchPostComments({                                                              //dispatches fetch for more comments with necessary parameters to get next set
           firstPage: false,
           parentId: commentsData[1].data.children[commentsData[1].data.children.length-1].data.parent_id,
           children: commentsData[1].data.children[commentsData[1].data.children.length-1].data.children
       }))
+      setPendingPromise(currentPromise);
+      currentPromise.finally(()=>{
+      setPendingPromise(prev => prev===currentPromise ? null : prev)
+      });
     }
   }
 //REACT ROUTER CODE 
@@ -153,7 +152,7 @@ function App() {
         <Route path='/detailedview' element={<PostDetailedView setShowSearchBar={setShowSearchBar} showSearchBar={showSearchBar} handleLoadMoreComments={handleLoadMoreComments}/>}/>
         <Route path='/' index element={
           <div>
-            {data[0]&&<PostDisplay setUrl={setUrl} url={url} setShowSearchBar={setShowSearchBar} showSearchBar={showSearchBar} items={data} hasNextPage={after?true:false} isNextPageLoading={apiStatus} loadNextPage={loadNextPage}/>}
+            {data[0]&&<PostDisplay setUrl={setUrl} url={url} setShowSearchBar={setShowSearchBar} showSearchBar={showSearchBar} items={data} hasNextPage={after?true:false} isNextPageLoading={apiStatus} loadNextPage={loadNextPage} pendingPromise={pendingPromise} setPendingPromise={setPendingPromise} handleCancel={handleCancel}/>}
           </div>
         }/>
       </Route>

@@ -1,44 +1,13 @@
 import { createAsyncThunk, createSlice, current} from '@reduxjs/toolkit';
-
+import { postsUrlCreationHelper, commentsUrlCreationHelper } from '../../utils.js'
 
 export const fetchPostData = createAsyncThunk(
     'posts/fetchPostData',
     async(arg, {getState, rejectWithValue, signal})=>{
         let state = getState();
-        let showHomeFilters;
-        
-        let url = 'https://www.reddit.com';
-        if(arg.filter && (!arg.url.includes("/r/popular")) ||arg && arg.firstPage===true && (!arg.url.includes("/r/popular"))){
-           url += '/search.json?q=';
-           url += arg.url;
-           url += "&type=posts";
-           if(arg.filter){
-            url+="&sort=" + arg.filter;
-           }
-           url += "&raw_json=1";
-           showHomeFilters = false;
-        }
-        
-        else if (arg && arg.firstPage===false && (!arg.url.includes("/r/popular"))){
-            url += '/search.json?q=';
-            url += arg.url;
-            url += state.posts.after;
-            url += "&raw_json=1";
-            showHomeFilters = false;
-        }
-        else if(arg.url.includes("/r/popular") || (arg.url === "/r/popular" && arg.firstPage === true)){
-            //console.log("else called");
-            url+="/r/popular";
-            if(arg.filter){
-            url+="/" + arg.filter;
-            }
-            url += '.json?';
-            if(arg.firstPage===false){
-                url+="after="+state.posts.after + "&";
-            }
-            url += "raw_json=1";
-            showHomeFilters = true;
-        }
+        const urlCreationObj = postsUrlCreationHelper(arg.url, arg.firstPage, arg.filter, state.posts.after);
+        const url = urlCreationObj.url;
+        const showHomeFilters = urlCreationObj.showHomeFilters;
         console.log(url)
         let response;
         let data;
@@ -54,10 +23,6 @@ export const fetchPostData = createAsyncThunk(
             }
             return rejectWithValue("Something went wrong");
         }
-        finally{
-             
-        }
-        
         return {
             data:data,
             firstPage: arg.firstPage,
@@ -69,18 +34,7 @@ export const fetchPostData = createAsyncThunk(
 export const fetchPostComments = createAsyncThunk(
     'posts/fetchPostComments',
     async(arg)=>{
-        let url = 'https://www.reddit.com';
-        if(arg.firstPage===false){
-            url+='/api/morechildren.json?';
-            url+= "api_type=json&"
-            url+='link_id=' + arg.parentId + '&';
-            url+= 'children=' + arg.children.join(",") + '&'; 
-        }
-        else{
-            url += arg.permalink;
-            url += '.json?';
-            url += "&raw_json=1"  
-        }
+        const url = commentsUrlCreationHelper(arg.firstPage, arg.parentId, arg.children, arg.permalink)
         console.log(url);
         const response = await fetch(url);
         const data = await response.json();
@@ -122,7 +76,7 @@ const postsSlice = createSlice({
             state.after=action.payload.data.data.after;
             }
             else{
-                state.postData[0].data.children.push(...action.payload.data.data.children);
+                state.postData[0].data.children.push(...action.payload.data.data.children); //unrolls next set of comments and appends to array. this avoids adding an array and instead adds the array elements to the existing array
                 state.after=action.payload.data.data.after;
             }
             const data = (current(state));
