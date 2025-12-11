@@ -75,9 +75,9 @@ function dataTransformationHelper (data){
                 score,
                 num_comments,
                 permalink,
-                preview:{
-                    images
-                }
+                preview
+                
+                    
             }
 
         } = item;
@@ -87,7 +87,7 @@ function dataTransformationHelper (data){
             score,
             num_comments,
             permalink,
-            images
+            preview
         })
     });
     return normalizedData;

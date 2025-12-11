@@ -106,11 +106,12 @@ const Row = ({index, style}) => {
     //POST TITLE ORIGINAL CODE:<h3 className={`${styles.postTitle} ${items[0].data.children[index].data.preview?'':styles.noPreview}`}>{items[0].data.children[index].data.title}</h3>
     else{                       //show post data if item is loaded
         content = (
-            <div style={{height:transformedData[index].images?'500px':' 150px'}} ref={itemRef} className={styles.postWindow}>
+            <div style={{height:transformedData[index].preview?'500px':' 150px'}} ref={itemRef} className={styles.postWindow}>
+            
                 <div className={styles.textContainer}>
-                <h3 className={`${styles.postTitle} ${transformedData[index].images?'':styles.noPreview}`}>{transformedData[index].title}</h3>
+                <h3 className={`${styles.postTitle} ${transformedData[index].preview?'':styles.noPreview}`}>{transformedData[index].title}</h3>
                 </div>
-                {transformedData[index].images&&<img className={styles.postPreview} src={transformedData[index].images[0].source.url}/>}
+                {transformedData[index].preview && <img className={styles.postPreview} src={transformedData[index].preview.images[0].source.url}/>}
                 
                 <div className={styles.infoContainer}>
                     <div className={styles.postInfoBox}>
