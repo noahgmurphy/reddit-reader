@@ -71,13 +71,23 @@ function dataTransformationHelper (data){
         const {                     //destructures nested data
             data:{
                 title,
-                author
+                author, 
+                score,
+                num_comments,
+                permalink,
+                preview:{
+                    images
+                }
             }
 
         } = item;
         normalizedData.push({       // pushes destructured data to new array to avoid deep nesting
             title,
-            author
+            author,
+            score,
+            num_comments,
+            permalink,
+            images
         })
     });
     return normalizedData;

@@ -106,17 +106,17 @@ const Row = ({index, style}) => {
     //POST TITLE ORIGINAL CODE:<h3 className={`${styles.postTitle} ${items[0].data.children[index].data.preview?'':styles.noPreview}`}>{items[0].data.children[index].data.title}</h3>
     else{                       //show post data if item is loaded
         content = (
-            <div style={{height:items[0].data.children[index].data.preview?'500px':' 150px'}} ref={itemRef} className={styles.postWindow}>
+            <div style={{height:transformedData[index].images?'500px':' 150px'}} ref={itemRef} className={styles.postWindow}>
                 <div className={styles.textContainer}>
-                <h3 className={`${styles.postTitle} ${items[0].data.children[index].data.preview?'':styles.noPreview}`}>{transformedData[index].title}</h3>
+                <h3 className={`${styles.postTitle} ${transformedData[index].images?'':styles.noPreview}`}>{transformedData[index].title}</h3>
                 </div>
-                {items[0].data.children[index].data.preview&&<img className={styles.postPreview} src={items[0].data.children[index].data.preview.images[0].source.url}/>}
+                {transformedData[index].images&&<img className={styles.postPreview} src={transformedData[index].images[0].source.url}/>}
                 
                 <div className={styles.infoContainer}>
                     <div className={styles.postInfoBox}>
-                        <p className={styles.score}>&#x2193;{items[0].data.children[index].data.score}&#x2191;</p>
-                        <p className={styles.authorName}>Posted by {items[0].data.children[index].data.author}</p>
-                        <Link to="/detailedview" onClick={(event)=>handleLinkClick(event, items[0].data.children[index].data.permalink)} className={styles.commentAmount}>{items[0].data.children[index].data.num_comments} Comments</Link>
+                        <p className={styles.score}>&#x2193;{transformedData[index].score}&#x2191;</p>
+                        <p className={styles.authorName}>Posted by {transformedData[index].author}</p>
+                        <Link to="/detailedview" onClick={(event)=>handleLinkClick(event, transformedData[index].permalink)} className={styles.commentAmount}>{transformedData[index].num_comments} Comments</Link>
                     </div>
                 </div>
             </div>
