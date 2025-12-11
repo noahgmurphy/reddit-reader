@@ -12,6 +12,7 @@ export const PostDisplay = ({
     hasNextPage,
     isNextPageLoading, 
     items, 
+    transformedData,
     loadNextPage,
     setShowSearchBar,
     showSearchBar,
@@ -25,6 +26,8 @@ const dispatch = useDispatch();
 const navigate = useNavigate();
 const showInfiniteScroll = useSelector((state)=>state.posts.showInfiniteScroll);
 const loadedPosts = useSelector((state)=>state.posts.loadedPosts);
+//EXTRACTS DATA FROM API AND SAVES IN VARIABLES TO IMPROVE READABILITY
+
 //CALLS RESET WINDOW WHEN NEW SEARCH DATA IS ACQUIRED 
 useEffect(()=>{
     handleResetWindow();        //resets window position to top upon new search data load
@@ -100,11 +103,12 @@ const Row = ({index, style}) => {
             </div>
         )
     }
+    //POST TITLE ORIGINAL CODE:<h3 className={`${styles.postTitle} ${items[0].data.children[index].data.preview?'':styles.noPreview}`}>{items[0].data.children[index].data.title}</h3>
     else{                       //show post data if item is loaded
         content = (
             <div style={{height:items[0].data.children[index].data.preview?'500px':' 150px'}} ref={itemRef} className={styles.postWindow}>
                 <div className={styles.textContainer}>
-                <h3 className={`${styles.postTitle} ${items[0].data.children[index].data.preview?'':styles.noPreview}`}>{items[0].data.children[index].data.title}</h3>
+                <h3 className={`${styles.postTitle} ${items[0].data.children[index].data.preview?'':styles.noPreview}`}>{transformedData[index].title}</h3>
                 </div>
                 {items[0].data.children[index].data.preview&&<img className={styles.postPreview} src={items[0].data.children[index].data.preview.images[0].source.url}/>}
                 

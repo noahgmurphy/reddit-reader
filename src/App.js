@@ -16,6 +16,7 @@ function App() {
   const [pendingPromise, setPendingPromise] = useState(null);
   const dispatch = useDispatch();
   const data = useSelector((state)=>state.posts.postData);
+  const transformedData = useSelector((state)=>state.posts.transformedData)
   const after = useSelector((state)=>state.posts.after);
   const apiStatus = useSelector((state)=>state.posts.isLoading);
   const timeoutId = useRef(null);
@@ -152,7 +153,7 @@ function App() {
         <Route path='/detailedview' element={<PostDetailedView setShowSearchBar={setShowSearchBar} showSearchBar={showSearchBar} handleLoadMoreComments={handleLoadMoreComments}/>}/>
         <Route path='/' index element={
           <div>
-            {data[0]&&<PostDisplay setUrl={setUrl} url={url} setShowSearchBar={setShowSearchBar} showSearchBar={showSearchBar} items={data} hasNextPage={after?true:false} isNextPageLoading={apiStatus} loadNextPage={loadNextPage} pendingPromise={pendingPromise} setPendingPromise={setPendingPromise} handleCancel={handleCancel}/>}
+            {data[0]&&<PostDisplay setUrl={setUrl} url={url} setShowSearchBar={setShowSearchBar} showSearchBar={showSearchBar} items={data} hasNextPage={after?true:false} isNextPageLoading={apiStatus} loadNextPage={loadNextPage} pendingPromise={pendingPromise} setPendingPromise={setPendingPromise} handleCancel={handleCancel} transformedData={transformedData}/>}
           </div>
         }/>
       </Route>

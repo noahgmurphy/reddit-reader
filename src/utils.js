@@ -64,4 +64,22 @@ function searchInputTransformHelper(input){
     }
     return url;
 }
-export { postsUrlCreationHelper, commentsUrlCreationHelper, searchInputTransformHelper }
+
+function dataTransformationHelper (data){
+    let normalizedData = [];
+    data.data.children.map((item)=>{
+        const {                     //destructures nested data
+            data:{
+                title,
+                author
+            }
+
+        } = item;
+        normalizedData.push({       // pushes destructured data to new array to avoid deep nesting
+            title,
+            author
+        })
+    });
+    return normalizedData;
+}
+export { postsUrlCreationHelper, commentsUrlCreationHelper, searchInputTransformHelper, dataTransformationHelper }

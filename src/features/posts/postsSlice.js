@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice, current} from '@reduxjs/toolkit';
-import { postsUrlCreationHelper, commentsUrlCreationHelper } from '../../utils.js'
+import { postsUrlCreationHelper, commentsUrlCreationHelper, dataTransformationHelper } from '../../utils.js'
 
 export const fetchPostData = createAsyncThunk(
     'posts/fetchPostData',
@@ -23,10 +23,12 @@ export const fetchPostData = createAsyncThunk(
             }
             return rejectWithValue("Something went wrong");
         }
+        const transformedData = dataTransformationHelper(data);
         return {
             data:data,
             firstPage: arg.firstPage,
-            showHomeFilters: showHomeFilters
+            showHomeFilters: showHomeFilters,
+            transformedData
         };
     }
  )
@@ -47,6 +49,7 @@ export const fetchPostComments = createAsyncThunk(
 const postsSlice = createSlice({
     name: 'posts',
     initialState: {postData:[],
+        transformedData: [],
         loadedPosts: "", 
         isLoading: false,
         after: "",
@@ -70,12 +73,18 @@ const postsSlice = createSlice({
             state.loadedPosts = "success";
             state.isLoading = false;
             if(action.payload.firstPage === true){
+            //CODE FOR NORMALIZED DATA
+                state.transformedData = action.payload.transformedData;
+            //
             state.postData = [];
             state.commentsData = [];
             state.postData[0] = action.payload.data;
             state.after=action.payload.data.data.after;
             }
             else{
+            //CODE FOR NORMALIZED DATA
+                state.transformedData.push(...action.payload.transformedData);
+            //
                 state.postData[0].data.children.push(...action.payload.data.data.children); //unrolls next set of comments and appends to array. this avoids adding an array and instead adds the array elements to the existing array
                 state.after=action.payload.data.data.after;
             }
