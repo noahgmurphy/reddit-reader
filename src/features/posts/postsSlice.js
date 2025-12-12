@@ -52,6 +52,7 @@ const postsSlice = createSlice({
         transformedData: [],
         loadedPosts: "", 
         isLoading: false,
+        commentsIsLoading: false,
         after: "",
         commentsData: [],
         loadedComments: "",
@@ -102,10 +103,12 @@ const postsSlice = createSlice({
             state.showInfiniteScroll = false;
             state.after="";
             state.loadedComments = "pending";
+            state.commentsIsLoading = true;
             console.log("loading comments")
         })
         builder.addCase(fetchPostComments.fulfilled, (state, action) => {
             state.loadedComments = "success";
+            state.commentsIsLoading = false;
             console.log("success loading comments");
             if(state.commentsData.length===0||action.payload.firstPage){
                 state.commentsData = action.payload.data;
@@ -119,6 +122,7 @@ const postsSlice = createSlice({
         })
         builder.addCase(fetchPostComments.rejected, (state) => {
             state.loadedComments = "failed";
+            state.commentsIsLoading = false;
             console.log("failed to load comments")
         })
     }

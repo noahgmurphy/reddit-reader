@@ -2,12 +2,13 @@ import React from 'react';
 import Linkify from 'react-linkify'
 import { useSelector, useDispatch} from 'react-redux';
 import { useEffect } from 'react';
-import { fetchPostComments } from './postsSlice';
 import  styles  from './PostDetailedView.module.css';
+
+
 export const PostDetailedView = ({setShowSearchBar, showSearchBar, handleLoadMoreComments}) =>{
     const dispatch = useDispatch();
     const commentsData = useSelector((state)=>state.posts.commentsData);
-    const [entry] = performance.getEntriesByType('navigation');
+    const isCommentsLoading = useSelector((state)=>state.posts.isCommentsLoading)
 //SEARCH BAR VISIBILITY
     useEffect(()=> {                                                //handles search bar visibility based on scroll direction for normal window
         let lastScrollTop = 0;                                      //keeps track of last scroll position
@@ -47,7 +48,10 @@ export const PostDetailedView = ({setShowSearchBar, showSearchBar, handleLoadMor
             ))}
         </div>}
     
-    {commentsData[1] && commentsData[1].data.children.length>0 && commentsData[1].data.children[commentsData[1].data.children.length-1].kind==="more"&&commentsData[1].data.children[commentsData[1].data.children.length-1].data.depth===0 && <button className={styles.loadMoreButton} onClick={()=>{handleLoadMoreComments(commentsData)}}>LOAD MORE...</button>}
+    {!isCommentsLoading && commentsData[1] && commentsData[1].data.children.length>0 && commentsData[1].data.children[commentsData[1].data.children.length-1].kind==="more"&&commentsData[1].data.children[commentsData[1].data.children.length-1].data.depth===0 && <button className={styles.loadMoreButton} onClick={()=>{handleLoadMoreComments(commentsData)}}>LOAD MORE...</button>}
+            {isCommentsLoading && <div className={styles.loadingContainer}>
+                <img className={styles.loadingGif} src="https://media.tenor.com/Pq1cZiuhlEEAAAAi/rajinikanth.gif"/>  
+            </div>}
     </div>
 )
     

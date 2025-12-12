@@ -48,3 +48,15 @@
     margin: auto;
     margin-bottom: 5px;
 }
+
+/*LOADING INDICATOR*/
+.loadingContainer{
+    height: 100px;
+    text-align: center;
+    margin-top: 15px;
+}
+.loadingGif{
+    
+    height: 100px;
+    width: 100px;
+}
