@@ -21,6 +21,9 @@ function App() {
   const apiStatus = useSelector((state)=>state.posts.isLoading);
   const timeoutId = useRef(null);
   const [entry] = performance.getEntriesByType('navigation');
+//LOAD MORE COMMENTS STATE DATA
+  const [moreCommentsIds, setMoreCommentsIds] = useState();
+  const [didFetchIds, setDidFetchIds] = useState(false);
 //HANDLES FIRST MOUNT, REFRESH, AND REDIRECT
   useEffect(()=>{
     const handlePopState = (event) => {
@@ -133,13 +136,24 @@ function App() {
   }
 //LOAD MORE COMMENTS FOR DETAILED VIEW
   const handleLoadMoreComments = (commentsData) => {
-    if(commentsData[1].data.children[commentsData[1].data.children.length-1].kind==="more"){    //checks if there are more comments to load
+    let nextIds = [];
+    let commentIds = commentsData[1].data.children[commentsData[1].data.children.length-1].data.children;       // sets variable for first run to retrieve data from DetailedView component
+    if(commentsData[1].data.children[commentsData[1].data.children.length-1].kind==="more" || moreCommentsIds){    //checks if there are more comments to load
       handleCancel();
+      if(moreCommentsIds){
+        nextIds = moreCommentsIds.toSpliced(100, Infinity);    //splices 100 and further for dispatch
+        setMoreCommentsIds(moreCommentsIds.toSpliced(0,100))   // splices first 100 from state to update ids for subsequent calls
+      }
+      else{                                                //on first run
+        nextIds = commentIds.toSpliced(100, Infinity);      
+        setMoreCommentsIds(commentIds.toSpliced(0,100))   
+      }
       const currentPromise = dispatch(fetchPostComments({                                                              //dispatches fetch for more comments with necessary parameters to get next set
           firstPage: false,
           parentId: commentsData[1].data.children[commentsData[1].data.children.length-1].data.parent_id,
-          children: commentsData[1].data.children[commentsData[1].data.children.length-1].data.children
+          children: nextIds 
       }))
+      setDidFetchIds(true);
       setPendingPromise(currentPromise);
       currentPromise.finally(()=>{
       setPendingPromise(prev => prev===currentPromise ? null : prev)

@@ -39,6 +39,7 @@ function postsUrlCreationHelper(inputUrl, firstPage, filter, after){
 function commentsUrlCreationHelper(firstPage, parentId, children, permalink){
     let url = 'https://www.reddit.com';
         if(firstPage===false){
+            console.log(children);
             url+='/api/morechildren.json?';
             url+= "api_type=json&"
             url+='link_id=' + parentId + '&';
