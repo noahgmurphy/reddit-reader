@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice, current} from '@reduxjs/toolkit';
-import { postsUrlCreationHelper, commentsUrlCreationHelper, dataTransformationHelper } from '../../utils.js'
+import { postsUrlCreationHelper, commentsUrlCreationHelper, postDataTransformationHelper, commentDataTransformationHelper } from '../../utils.js'
 
 export const fetchPostData = createAsyncThunk(
     'posts/fetchPostData',
@@ -8,7 +8,6 @@ export const fetchPostData = createAsyncThunk(
         const urlCreationObj = postsUrlCreationHelper(arg.url, arg.firstPage, arg.filter, state.posts.after);
         const url = urlCreationObj.url;
         const showHomeFilters = urlCreationObj.showHomeFilters;
-        console.log(url)
         let response;
         let data;
         try{
@@ -23,7 +22,7 @@ export const fetchPostData = createAsyncThunk(
             }
             return rejectWithValue("Something went wrong");
         }
-        const transformedData = dataTransformationHelper(data);
+        const transformedData = postDataTransformationHelper(data);
         return {
             data:data,
             firstPage: arg.firstPage,
@@ -37,24 +36,26 @@ export const fetchPostComments = createAsyncThunk(
     'posts/fetchPostComments',
     async(arg)=>{
         const url = commentsUrlCreationHelper(arg.firstPage, arg.parentId, arg.children, arg.permalink)
-        console.log(url);
         const response = await fetch(url);
         const data = await response.json();
+        const transformedData = commentDataTransformationHelper(data, arg.firstPage); //this line causes failure to load comments ON SECOND AND SUBSEQUENT
         return {
             data:data,
-            firstPage: arg.firstPage
+            firstPage: arg.firstPage,
+            transformedData
         };
         })
 
 const postsSlice = createSlice({
     name: 'posts',
-    initialState: {postData:[],
-        transformedData: [],
+    initialState: {postData: [],
+        transformedPostData: [],
         loadedPosts: "", 
         isLoading: false,
         commentsIsLoading: false,
         after: "",
         commentsData: [],
+        transformedCommentData: [],
         loadedComments: "",
         showInfiniteScroll: "false",
         showHomeFilters: true
@@ -74,8 +75,8 @@ const postsSlice = createSlice({
             state.loadedPosts = "success";
             state.isLoading = false;
             if(action.payload.firstPage === true){
-            //CODE FOR NORMALIZED DATA
-                state.transformedData = action.payload.transformedData;
+            //CODE FOR TRANSFORMED DATA
+                state.transformedPostData = action.payload.transformedData;
             //
             state.postData = [];
             state.commentsData = [];
@@ -83,8 +84,8 @@ const postsSlice = createSlice({
             state.after=action.payload.data.data.after;
             }
             else{
-            //CODE FOR NORMALIZED DATA
-                state.transformedData.push(...action.payload.transformedData);
+            //CODE FOR TRANSFORMED DATA
+                state.transformedPostData.push(...action.payload.transformedData);
             //
                 state.postData[0].data.children.push(...action.payload.data.data.children); //unrolls next set of comments and appends to array. this avoids adding an array and instead adds the array elements to the existing array
                 state.after=action.payload.data.data.after;
@@ -112,9 +113,15 @@ const postsSlice = createSlice({
             console.log("success loading comments");
             if(state.commentsData.length===0||action.payload.firstPage){
                 state.commentsData = action.payload.data;
+                //CODE FOR TRANSFORMED DATA
+                state.transformedCommentData = action.payload.transformedData;
+                //
             }
             else{
                 console.log("called")
+                //CODE FOR TRANSFORMED DATA
+                state.transformedCommentData.push(...action.payload.transformedData);
+                //
                 state.commentsData = [...state.commentsData, state.commentsData[1].data.children.push(...action.payload.data.json.data.things)]
             }
             const data = (current(state));

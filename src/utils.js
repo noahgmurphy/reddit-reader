@@ -66,10 +66,10 @@ function searchInputTransformHelper(input){
     return url;
 }
 
-function dataTransformationHelper (data){
-    let normalizedData = [];
+function postDataTransformationHelper (data){ //destructures nested post data to avoid deep nesting
+    let transformedData = [];
     data.data.children.map((item)=>{
-        const {                     //destructures nested data
+        const {                     
             data:{
                 title,
                 author, 
@@ -82,7 +82,7 @@ function dataTransformationHelper (data){
             }
 
         } = item;
-        normalizedData.push({       // pushes destructured data to new array to avoid deep nesting
+        transformedData.push({       
             title,
             author,
             score,
@@ -91,6 +91,39 @@ function dataTransformationHelper (data){
             preview
         })
     });
-    return normalizedData;
+    return transformedData;
 }
-export { postsUrlCreationHelper, commentsUrlCreationHelper, searchInputTransformHelper, dataTransformationHelper }
+
+function commentDataTransformationHelper(data, firstPage){ //destructures nested comment data to avoid deep nesting
+    let transformedData = [];
+    if(firstPage){                              //data structure is different after first fetch
+        data[1].data.children.map((item)=>{   
+        if (item.kind!=="more"){
+            const{
+                data:{
+                    body
+                }
+            } = item;
+            transformedData.push({
+                body
+            })
+        }
+        })
+    }
+    else{
+        data.json.data.things.map((item)=>{
+          if (item.kind!=="more"){
+            const{
+                data:{
+                    body
+                }
+            } = item;
+            transformedData.push({
+                body
+            })
+        }  
+        })
+    }
+    return transformedData;
+}
+export { postsUrlCreationHelper, commentsUrlCreationHelper, searchInputTransformHelper, postDataTransformationHelper, commentDataTransformationHelper }
