@@ -96,7 +96,16 @@ function postDataTransformationHelper (data){ //destructures nested post data to
 
 function commentDataTransformationHelper(data, firstPage){ //destructures nested comment data to avoid deep nesting
     let transformedData = [];
-    if(firstPage){                              //data structure is different after first fetch
+    if(firstPage){                                         //data structure is different after first fetch
+       if(data[0].data.children[0].data.preview){
+            const postTitle = data[0]?.data?.children[0]?.data?.title;  //checks that each object/array exists using optional chaining
+            const previewImageUrl = data[0]?.data?.children[0]?.data?.preview?.images[0]?.source?.url; 
+            transformedData.push({
+                postTitle,
+                previewImageUrl
+            });
+           
+        }
         data[1].data.children.map((item)=>{   
         if (item.kind!=="more"){
             const{

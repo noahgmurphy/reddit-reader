@@ -12,6 +12,7 @@ export const fetchPostData = createAsyncThunk(
         let data;
         try{
             response = await fetch(url, {signal}); 
+            console.log(response);
             data = await response.json();
         }
         
