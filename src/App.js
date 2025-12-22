@@ -16,7 +16,10 @@ function App() {
   const [pendingPromise, setPendingPromise] = useState(null);
   const dispatch = useDispatch();
   const data = useSelector((state)=>state.posts.postData);
-  const transformedPostData = useSelector((state)=>state.posts.transformedPostData)
+  const transformedPostData = useSelector((state)=>state.posts.transformedPostData);
+  //MORE COMMENTS STATE
+  
+  //
   const after = useSelector((state)=>state.posts.after);
   const apiStatus = useSelector((state)=>state.posts.isLoading);
   const timeoutId = useRef(null);
@@ -135,20 +138,20 @@ function App() {
     }, 7000);
   }
 //LOAD MORE COMMENTS FOR DETAILED VIEW
-  const handleLoadMoreComments = (commentsData) => {
+  const handleLoadMoreComments = (commentsData, transformedCommentData) => {
     let nextIds = [];
-    let commentIds = commentsData[1].data.children[commentsData[1].data.children.length-1].data.children;       // sets variable for first run to retrieve data from DetailedView component
-    if(commentsData[1].data.children[commentsData[1].data.children.length-1].kind==="more" || moreCommentsIds){    //checks if there are more comments to load
+    const commentIds = transformedCommentData[1].commentIds;        // sets variable for first run to retrieve data from DetailedView component
+    if(commentIds?.length > 0 || moreCommentsIds){                  //checks if there are more comments to load
       handleCancel();
       if(moreCommentsIds){
-        nextIds = moreCommentsIds.toSpliced(100, Infinity);    //splices 100 and further for dispatch
-        setMoreCommentsIds(moreCommentsIds.toSpliced(0,100))   // splices first 100 from state to update ids for subsequent calls
+        nextIds = moreCommentsIds.toSpliced(100, Infinity);         //splices 100 and further for dispatch
+        setMoreCommentsIds(moreCommentsIds.toSpliced(0,100));       // splices first 100 from state to update ids for subsequent calls
       }
-      else{                                                //on first run
+      else{                                                         //on first run
         nextIds = commentIds.toSpliced(100, Infinity);      
-        setMoreCommentsIds(commentIds.toSpliced(0,100))   
+        setMoreCommentsIds(commentIds.toSpliced(0,100));
       }
-      const currentPromise = dispatch(fetchPostComments({                                                              //dispatches fetch for more comments with necessary parameters to get next set
+      const currentPromise = dispatch(fetchPostComments({           
           firstPage: false,
           parentId: commentsData[1].data.children[commentsData[1].data.children.length-1].data.parent_id,
           children: nextIds 
@@ -164,7 +167,7 @@ function App() {
   const router = createBrowserRouter(createRoutesFromElements(    // sets up routes for main view and detailed view
     <Route>
       <Route element={<PostSearchBar  handleFilter={handleFilter}setShowSearchBar={setShowSearchBar} showSearchBar={showSearchBar} handleClick={handleClick} handleInput={handleInput} input={input}/>}>
-        <Route path='/detailedview' element={<PostDetailedView setShowSearchBar={setShowSearchBar} showSearchBar={showSearchBar} handleLoadMoreComments={handleLoadMoreComments}/>}/>
+        <Route path='/detailedview' element={<PostDetailedView setShowSearchBar={setShowSearchBar} showSearchBar={showSearchBar} handleLoadMoreComments={handleLoadMoreComments} moreCommentsIds={moreCommentsIds}/>}/>
         <Route path='/' index element={
           <div>
             {data[0]&&<PostDisplay setUrl={setUrl} url={url} setShowSearchBar={setShowSearchBar} showSearchBar={showSearchBar} items={data} hasNextPage={after?true:false} isNextPageLoading={apiStatus} loadNextPage={loadNextPage} pendingPromise={pendingPromise} setPendingPromise={setPendingPromise} handleCancel={handleCancel} transformedPostData={transformedPostData}/>}

@@ -39,7 +39,6 @@ function postsUrlCreationHelper(inputUrl, firstPage, filter, after){
 function commentsUrlCreationHelper(firstPage, parentId, children, permalink){
     let url = 'https://www.reddit.com';
         if(firstPage===false){
-            console.log(children);
             url+='/api/morechildren.json?';
             url+= "api_type=json&"
             url+='link_id=' + parentId + '&';
@@ -77,10 +76,7 @@ function postDataTransformationHelper (data){ //destructures nested post data to
                 num_comments,
                 permalink,
                 preview
-                
-                    
             }
-
         } = item;
         transformedData.push({       
             title,
@@ -100,11 +96,14 @@ function commentDataTransformationHelper(data, firstPage){ //destructures nested
        if(data[0].data.children[0].data.preview){
             const postTitle = data[0]?.data?.children[0]?.data?.title;  //checks that each object/array exists using optional chaining
             const previewImageUrl = data[0]?.data?.children[0]?.data?.preview?.images[0]?.source?.url; 
+            const commentIds = data[1]?.data?.children[data[1].data.children.length-1]?.data?.children;
             transformedData.push({
                 postTitle,
                 previewImageUrl
             });
-           
+            transformedData.push({
+                commentIds
+            })
         }
         data[1].data.children.map((item)=>{   
         if (item.kind!=="more"){

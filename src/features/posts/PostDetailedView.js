@@ -1,14 +1,14 @@
 import React from 'react';
 import Linkify from 'react-linkify'
 import { useSelector, useDispatch} from 'react-redux';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import  styles  from './PostDetailedView.module.css';
 
 
-export const PostDetailedView = ({setShowSearchBar, showSearchBar, handleLoadMoreComments}) =>{
-    const dispatch = useDispatch();
+export const PostDetailedView = ({setShowSearchBar, showSearchBar, setShowLoadMoreButton, showLoadMoreButton, moreCommentsIds, handleLoadMoreComments}) =>{
     const commentsData = useSelector((state)=>state.posts.commentsData);
-    const isCommentsLoading = useSelector((state)=>state.posts.isCommentsLoading)
+    const transformedCommentData = useSelector((state)=> state.posts.transformedCommentData)
+    const isCommentsLoading = useSelector((state)=>state.posts.isCommentsLoading);
 //SEARCH BAR VISIBILITY
     useEffect(()=> {                                                //handles search bar visibility based on scroll direction for normal window
         let lastScrollTop = 0;                                      //keeps track of last scroll position
@@ -28,27 +28,26 @@ export const PostDetailedView = ({setShowSearchBar, showSearchBar, handleLoadMor
             window.removeEventListener('scroll', handleScroll )
         }
     }, [])
-    
+
     return(
     <div style={{marginTop: showSearchBar?'70px': '0px'}}>  
-    {commentsData[1]&&
+    {transformedCommentData[0]&&
         <div>
             <div className={styles.postDetailsContainer}>
-                <h3 className={styles.commentTitle}>{commentsData[0].data.children[0].data.title}</h3>
-                {commentsData[0].data.children[0].data.preview&&<img className={styles.commentPhoto} src={commentsData[0].data.children[0].data.preview.images[0].source.url}/>}
+                <h3 className={styles.commentTitle}>{transformedCommentData[0].postTitle}</h3>
+                {transformedCommentData[0].previewImageUrl&&<img className={styles.commentPhoto} src={transformedCommentData[0].previewImageUrl}/>}
             </div>
-            {commentsData[1].data.children.map((item)=>(
+            {transformedCommentData.slice(2).map((item)=>(                  //slices first element containing post details
                 <div>
-                    {item.data.body && <div className={styles.commentContainer}>
+                    {item.body && <div className={styles.commentContainer}>
                         <Linkify>
-                            <p>{item.data.body}</p>
+                            <p>{item.body}</p>
                         </Linkify>
                     </div>}
                 </div>
             ))}
         </div>}
-    
-    {!isCommentsLoading && commentsData[1] && commentsData[1].data.children.length>0 && commentsData[1].data.children[commentsData[1].data.children.length-1].kind==="more"&&commentsData[1].data.children[commentsData[1].data.children.length-1].data.depth===0 && <button className={styles.loadMoreButton} onClick={()=>{handleLoadMoreComments(commentsData)}}>LOAD MORE...</button>}
+    {((moreCommentsIds?.length>0) || (transformedCommentData[1]?.commentIds?.length>0 && !moreCommentsIds)) && <button className={styles.loadMoreButton} onClick={()=>{handleLoadMoreComments(commentsData, transformedCommentData)}}>LOAD MORE...</button>}
             {isCommentsLoading && <div className={styles.loadingContainer}>
                 <img className={styles.loadingGif} src="https://media.tenor.com/Pq1cZiuhlEEAAAAi/rajinikanth.gif"/>  
             </div>}
