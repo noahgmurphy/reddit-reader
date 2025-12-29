@@ -12,6 +12,7 @@ import { searchInputTransformHelper } from './utils.js'
 function App() {
   const [input, setInput] = useState();
   const [url, setUrl] = useState();
+  const [filter, setFilter] = useState();
   const [showSearchBar, setShowSearchBar] = useState(true);
   const [pendingPromise, setPendingPromise] = useState(null);
   const dispatch = useDispatch();
@@ -35,11 +36,14 @@ function App() {
     window.addEventListener('popstate', handlePopState);                      //Trigger page reload upon popstate (back button click) 
     if(entry && entry.type==="reload" && window.location.pathname === "/" ){  //if on home page and reload...
       const urlFromRefresh = localStorage.getItem('storedUrl');               //retrieve url from local storage
+      const filterFromRefresh = localStorage.getItem('storedFilter');
       setUrl(urlFromRefresh); 
+      setFilter(filterFromRefresh);
       handleCancel();
       const currentPromise = dispatch(fetchPostData({                                                //fetch data from before refresh to restore view
         firstPage: true,
-        url:urlFromRefresh
+        url:urlFromRefresh,
+        filter: filterFromRefresh
       }));
       setPendingPromise(currentPromise);
       currentPromise.finally(()=>{
@@ -49,7 +53,7 @@ function App() {
     else if(entry && entry.type==="reload" && window.location.pathname==="/detailedview"){ //if in detailed (comments) view and reload triggered
       const commentLink = localStorage.getItem('commentLink');                             //retrieve comment link from local storage
       handleCancel();
-      const currentPromise = dispatch(fetchPostComments({                                                         //fetch comments from before refresh to restore detailed view
+      const currentPromise = dispatch(fetchPostComments({                                  //fetch comments from before refresh to restore detailed view
         firstPage: true,
         permalink: commentLink,
       }));
@@ -91,10 +95,10 @@ function App() {
   }
   const handleClick = () => {
     localStorage.clear();
+    setFilter("");
     if(input && input.trim()!=="" ){      //checks if input exists and is not empty string to avoid unnecessary fetches
     console.log(timeoutId);
     clearTimeout(timeoutId.current);      //cancels any delayed dispatches still incoming to avoid race conditions
-    
     const url = searchInputTransformHelper(input)
     localStorage.setItem('storedUrl', url);   //stores current url in local storage to restore view upon refresh
     setUrl(url);
@@ -114,6 +118,8 @@ function App() {
   const handleFilter = (filter) => {
     if(data.length>0){
       handleCancel();
+      localStorage.setItem('storedFilter', filter);
+      setFilter(filter);
       const currentPromise = dispatch(fetchPostData({               //dispatches fetch with new filter applied
         filter: filter,
         url: url, 
@@ -166,7 +172,7 @@ function App() {
 //REACT ROUTER CODE 
   const router = createBrowserRouter(createRoutesFromElements(    // sets up routes for main view and detailed view
     <Route>
-      <Route element={<PostSearchBar  handleFilter={handleFilter}setShowSearchBar={setShowSearchBar} showSearchBar={showSearchBar} handleClick={handleClick} handleInput={handleInput} input={input}/>}>
+      <Route element={<PostSearchBar  filter={filter} handleFilter={handleFilter}setShowSearchBar={setShowSearchBar} showSearchBar={showSearchBar} handleClick={handleClick} handleInput={handleInput} input={input}/>}>
         <Route path='/detailedview' element={<PostDetailedView setShowSearchBar={setShowSearchBar} showSearchBar={showSearchBar} handleLoadMoreComments={handleLoadMoreComments} moreCommentsIds={moreCommentsIds}/>}/>
         <Route path='/' index element={
           <div>
