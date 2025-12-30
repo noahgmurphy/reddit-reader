@@ -114,6 +114,20 @@ function App() {
     });
     }
   }
+  const handlePopularClick = () => {
+    localStorage.clear();
+      localStorage.setItem('storedUrl', "/r/popular");
+      setUrl("/r/popular");
+      handleCancel();
+      const currentPromise = dispatch(fetchPostData({                          //fetch home page data
+        firstPage: true,
+        url:"/r/popular"
+      }));
+      setPendingPromise(currentPromise);
+      currentPromise.finally(()=>{
+      setPendingPromise(prev => prev===currentPromise ? null : prev)
+      });
+  }
 //HANDLES FILTER SETTING
   const handleFilter = (filter) => {
     if(data.length>0){
@@ -172,7 +186,7 @@ function App() {
 //REACT ROUTER CODE 
   const router = createBrowserRouter(createRoutesFromElements(    // sets up routes for main view and detailed view
     <Route>
-      <Route element={<PostSearchBar  filter={filter} handleFilter={handleFilter}setShowSearchBar={setShowSearchBar} showSearchBar={showSearchBar} handleClick={handleClick} handleInput={handleInput} input={input}/>}>
+      <Route element={<PostSearchBar  filter={filter} handleFilter={handleFilter}setShowSearchBar={setShowSearchBar} showSearchBar={showSearchBar} handleClick={handleClick} handlePopularClick={handlePopularClick} handleInput={handleInput} input={input}/>}>
         <Route path='/detailedview' element={<PostDetailedView setShowSearchBar={setShowSearchBar} showSearchBar={showSearchBar} handleLoadMoreComments={handleLoadMoreComments} moreCommentsIds={moreCommentsIds}/>}/>
         <Route path='/' index element={
           <div>

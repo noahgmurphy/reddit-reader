@@ -9,10 +9,11 @@ return(
     <div>
         <div style={{display:props.showSearchBar?'inline-block':'none'}} className={styles.searchWrapper}>
             <div className={styles.searchContainer}>
+                <button className={styles.popularButton} onClick={()=>{props.handlePopularClick(); navigate('/');}}>Popular</button>
                 <div className={styles.barContainer}>
                     <input value={props.input} className={styles.searchInput}onChange={(e)=>{props.handleInput(e.target.value)}}></input>
                     <button className={styles.searchButton} onClick={()=>{props.handleClick(); navigate('/');}}>&#x2315;</button>
-                </div>
+                    </div>
                 <div className={styles.filterContainer}>
                     <select value={props.filter} className={styles.filterInput} onChange={(e)=>{props.handleFilter(e.target.value)}}>
                         {showHomeFilters && <option value="best" selected>Best</option>}
