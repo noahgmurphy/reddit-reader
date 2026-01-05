@@ -18,16 +18,12 @@ function App() {
   const dispatch = useDispatch();
   const data = useSelector((state)=>state.posts.postData);
   const transformedPostData = useSelector((state)=>state.posts.transformedPostData);
-  //MORE COMMENTS STATE
-  
-  //
   const after = useSelector((state)=>state.posts.after);
   const apiStatus = useSelector((state)=>state.posts.isLoading);
   const timeoutId = useRef(null);
   const [entry] = performance.getEntriesByType('navigation');
 //LOAD MORE COMMENTS STATE DATA
   const [moreCommentsIds, setMoreCommentsIds] = useState();
-  const [didFetchIds, setDidFetchIds] = useState(false);
 //HANDLES FIRST MOUNT, REFRESH, AND REDIRECT
   useEffect(()=>{
     const handlePopState = (event) => {
@@ -80,7 +76,6 @@ function App() {
       window.removeEventListener('popstate', handlePopState); 
     }
   },[])
-
 //HANDLES CANCELLATION OF PENDING PROMISE
   const handleCancel = () => {
     if (pendingPromise){
@@ -97,25 +92,26 @@ function App() {
     localStorage.clear();
     setFilter("");
     if(input && input.trim()!=="" ){      //checks if input exists and is not empty string to avoid unnecessary fetches
-    console.log(timeoutId);
-    clearTimeout(timeoutId.current);      //cancels any delayed dispatches still incoming to avoid race conditions
-    const url = searchInputTransformHelper(input)
-    localStorage.setItem('storedUrl', url);   //stores current url in local storage to restore view upon refresh
-    setUrl(url);
-    setInput('')
-    handleCancel();
-    const currentPromise = dispatch(fetchPostData({
-        firstPage: true,
-        url:url
-    }));
-    setPendingPromise(currentPromise);
-    currentPromise.finally(()=>{
-      setPendingPromise(prev => prev===currentPromise ? null : prev)
-    });
+      console.log(timeoutId);
+      clearTimeout(timeoutId.current);      //cancels any delayed dispatches still incoming to avoid race conditions
+      const url = searchInputTransformHelper(input)
+      localStorage.setItem('storedUrl', url);   //stores current url in local storage to restore view upon refresh
+      setUrl(url);
+      setInput('')
+      handleCancel();
+      const currentPromise = dispatch(fetchPostData({
+          firstPage: true,
+          url:url
+      }));
+      setPendingPromise(currentPromise);
+      currentPromise.finally(()=>{
+        setPendingPromise(prev => prev===currentPromise ? null : prev)
+      });
     }
   }
   const handlePopularClick = () => {
     localStorage.clear();
+    setFilter("");
       localStorage.setItem('storedUrl', "/r/popular");
       setUrl("/r/popular");
       handleCancel();
@@ -176,7 +172,6 @@ function App() {
           parentId: commentsData[1].data.children[commentsData[1].data.children.length-1].data.parent_id,
           children: nextIds 
       }))
-      setDidFetchIds(true);
       setPendingPromise(currentPromise);
       currentPromise.finally(()=>{
       setPendingPromise(prev => prev===currentPromise ? null : prev)
