@@ -4,15 +4,16 @@ import { postsUrlCreationHelper, commentsUrlCreationHelper, postDataTransformati
 export const fetchPostData = createAsyncThunk(
     'posts/fetchPostData',
     async(arg, {getState, rejectWithValue, signal})=>{
+        
         let state = getState();
         const urlCreationObj = postsUrlCreationHelper(arg.url, arg.firstPage, arg.filter, state.posts.after);
         const url = urlCreationObj.url;
+        console.log(url);
         const showHomeFilters = urlCreationObj.showHomeFilters;
         let response;
         let data;
         try{
             response = await fetch(url, {signal}); 
-            console.log(response);
             data = await response.json();
         }
         
@@ -66,13 +67,11 @@ const postsSlice = createSlice({
         //POST FETCH
         builder.addCase(fetchPostData.pending, (state, action) =>{
             state.showInfiniteScroll = true;
-            console.log("loading");
             state.loadedPosts = "pending";
             state.isLoading = true;
             state.loadedComments="";
         })
         builder.addCase(fetchPostData.fulfilled, (state, action) => {
-            console.log("success");
             state.loadedPosts = "success";
             state.isLoading = false;
             if(action.payload.firstPage === true){
@@ -93,10 +92,8 @@ const postsSlice = createSlice({
             }
             const data = (current(state));
             state.showHomeFilters = action.payload.showHomeFilters;
-            console.log(data)
         })
         builder.addCase(fetchPostData.rejected, (state) => {
-            console.log("failed");
             state.loadedPosts="failed";
             state.isLoading = false;
         })
@@ -106,12 +103,10 @@ const postsSlice = createSlice({
             state.after="";
             state.loadedComments = "pending";
             state.commentsIsLoading = true;
-            console.log("loading comments")
         })
         builder.addCase(fetchPostComments.fulfilled, (state, action) => {
             state.loadedComments = "success";
             state.commentsIsLoading = false;
-            console.log("success loading comments");
             if(state.commentsData.length===0||action.payload.firstPage){
                 state.commentsData = action.payload.data;
                 //CODE FOR TRANSFORMED DATA
@@ -119,19 +114,16 @@ const postsSlice = createSlice({
                 //
             }
             else{
-                console.log("called")
                 //CODE FOR TRANSFORMED DATA
                 state.transformedCommentData.push(...action.payload.transformedData);
                 //
                 state.commentsData = [...state.commentsData, state.commentsData[1].data.children.push(...action.payload.data.json.data.things)]
             }
             const data = (current(state));
-            console.log(data);
         })
         builder.addCase(fetchPostComments.rejected, (state) => {
             state.loadedComments = "failed";
             state.commentsIsLoading = false;
-            console.log("failed to load comments")
         })
     }
 })

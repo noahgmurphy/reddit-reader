@@ -7,7 +7,7 @@
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
-    "@testing-library/user-event": "^13.5.0",
+    "@testing-library/user-event": "^14.6.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-linkify": "^1.0.0-alpha",
@@ -21,7 +21,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
+    "test": "jest",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -43,6 +43,12 @@
     ]
   },
   "devDependencies": {
-    "ajv": "^7.2.4"
+    "@babel/core": "^7.29.0",
+    "@babel/preset-env": "^7.29.2",
+    "ajv": "^7.2.4",
+    "babel-jest": "^30.3.0",
+    "jest": "^30.3.0",
+    "jest-environment-jsdom": "^30.3.0",
+    "jest-transform-stub": "^2.0.0"
   }
 }

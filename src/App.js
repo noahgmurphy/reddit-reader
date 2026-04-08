@@ -10,9 +10,9 @@ import { fetchPostComments } from './features/posts/postsSlice.js';
 import { searchInputTransformHelper } from './utils.js'
 
 function App() {
-  const [input, setInput] = useState();
+  const [input, setInput] = useState(''); 
   const [url, setUrl] = useState();
-  const [filter, setFilter] = useState();
+  const [filter, setFilter] = useState("");
   const [showSearchBar, setShowSearchBar] = useState(true);
   const [pendingPromise, setPendingPromise] = useState(null);
   const dispatch = useDispatch();
@@ -32,7 +32,7 @@ function App() {
     window.addEventListener('popstate', handlePopState);                      //Trigger page reload upon popstate (back button click) 
     if(entry && entry.type==="reload" && window.location.pathname === "/" ){  //if on home page and reload...
       const urlFromRefresh = localStorage.getItem('storedUrl');               //retrieve url from local storage
-      const filterFromRefresh = localStorage.getItem('storedFilter');
+      const filterFromRefresh = localStorage.getItem('storedFilter') ?? "";
       setUrl(urlFromRefresh); 
       setFilter(filterFromRefresh);
       handleCancel();
@@ -92,7 +92,6 @@ function App() {
     localStorage.clear();
     setFilter("");
     if(input && input.trim()!=="" ){      //checks if input exists and is not empty string to avoid unnecessary fetches
-      console.log(timeoutId);
       clearTimeout(timeoutId.current);      //cancels any delayed dispatches still incoming to avoid race conditions
       const url = searchInputTransformHelper(input)
       localStorage.setItem('storedUrl', url);   //stores current url in local storage to restore view upon refresh

@@ -1,4 +1,6 @@
 function postsUrlCreationHelper(inputUrl, firstPage, filter, after){
+    console.log("called");
+    console.log(inputUrl);
     let showHomeFilters;
     let url = 'https://www.reddit.com';
     if(filter && (!inputUrl.includes("/r/popular")) || firstPage===true && (!inputUrl.includes("/r/popular"))){
