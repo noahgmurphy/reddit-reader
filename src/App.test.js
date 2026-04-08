@@ -6,11 +6,6 @@ jest.mock('./utils.js', () => {
   return{
   ...searchInputTransformHelper,
   postsUrlCreationHelper,
-  /*postsUrlCreationHelper: jest.fn(() => ({
-    url: 'https://www.reddit.com/r/popular.json?raw_json=1',
-    showHomeFilters: true
-  })),
-  */
   postDataTransformationHelper: jest.fn().mockReturnValue([{
     title: "Test Title",
     author: "Test Author",
@@ -65,7 +60,7 @@ test ('properly fetches data according to search input', async () => {
   global.fetch = jest.fn().mockResolvedValue({ok: true,
   json: async () => ({ data: { children: [] } }),})
 
-  performance.getEntriesByType = jest.fn().mockReturnValue([{ type: 'reload' }]);
+  performance.getEntriesByType = jest.fn().mockReturnValue([{ type: 'navigate' }]);
   
   const user = userEvent.setup();
   const store = renderWithProvider(<App/>);

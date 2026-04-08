@@ -8,7 +8,6 @@ export const fetchPostData = createAsyncThunk(
         let state = getState();
         const urlCreationObj = postsUrlCreationHelper(arg.url, arg.firstPage, arg.filter, state.posts.after);
         const url = urlCreationObj.url;
-        console.log(url);
         const showHomeFilters = urlCreationObj.showHomeFilters;
         let response;
         let data;
@@ -16,7 +15,6 @@ export const fetchPostData = createAsyncThunk(
             response = await fetch(url, {signal}); 
             data = await response.json();
         }
-        
         catch(error){
             if(error.name==="AbortError"){
                 const msg = "AbortError"
