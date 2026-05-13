@@ -34,6 +34,7 @@ useEffect(()=>{
 }, [items[0].data.children[0]])
 //FETCHES FIRST BATCH OF COMMENTS
 const handleLinkClick = (event, permalink) => { 
+    console.log("link clicked");
     event.preventDefault();
     localStorage.setItem('commentLink', permalink)
     handleCancel();
@@ -117,7 +118,7 @@ const Row = ({index, style}) => {
                     <div className={styles.postInfoBox}>
                         <p className={styles.score}>&#x2193;{transformedPostData[index].score}&#x2191;</p>
                         <p className={styles.authorName}>Posted by {transformedPostData[index].author}</p>
-                        <Link to="/detailedview" onClick={(event)=>handleLinkClick(event, transformedPostData[index].permalink)} className={styles.commentAmount}>{transformedPostData[index].num_comments} Comments</Link>
+                        <Link data-testid="commentsLink" to="/detailedview" onClick={(event)=>handleLinkClick(event, transformedPostData[index].permalink)} className={styles.commentAmount}>{transformedPostData[index].num_comments} Comments</Link>
                     </div>
                 </div>
             </div>
@@ -146,7 +147,7 @@ return(
                     ref(list);
                     listRef.current = list;
                 }}
-                height={window.innerHeight}
+                height={window.screen.height}
                 itemCount={itemCount}
                 itemSize={getItemSize}
                 width={"100%"}

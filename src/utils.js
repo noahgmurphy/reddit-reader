@@ -1,6 +1,4 @@
 function postsUrlCreationHelper(inputUrl, firstPage, filter, after){
-    console.log("called");
-    console.log(inputUrl);
     let showHomeFilters;
     let url = 'https://www.reddit.com';
     if(filter && (!inputUrl.includes("/r/popular")) || firstPage===true && (!inputUrl.includes("/r/popular"))){
@@ -67,6 +65,9 @@ function searchInputTransformHelper(input){
     return url;
 }
 
+function normalizeRedditUrl(url) {
+  return url?.replace(/&amp;/g, '&');
+}
 function postDataTransformationHelper (data){ //destructures nested post data to avoid deep nesting
     let transformedData = [];
     data.data.children.map((item)=>{
@@ -80,6 +81,10 @@ function postDataTransformationHelper (data){ //destructures nested post data to
                 preview
             }
         } = item;
+        if (preview?.images?.[0]?.source?.url) {
+            preview.images[0].source.url =
+            normalizeRedditUrl(preview.images[0].source.url);
+        }
         transformedData.push({       
             title,
             author,

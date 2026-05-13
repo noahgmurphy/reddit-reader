@@ -15,7 +15,7 @@ return(
                     <button data-testid="searchButton" className={styles.searchButton} onClick={()=>{props.handleClick(); navigate('/');}}>&#x2315;</button>
                     </div>
                 <div className={styles.filterContainer}>
-                    <select value={props.filter} className={styles.filterInput} onChange={(e)=>{props.handleFilter(e.target.value)}}>
+                    <select data-testid="filterSelect" value={props.filter} className={styles.filterInput} onChange={(e)=>{props.handleFilter(e.target.value)}}>
                         {showHomeFilters && <option value="best">Best</option>}
                         {!showHomeFilters && <option value="relevance">Relevance</option>}
                         <option value="hot">Hot</option>

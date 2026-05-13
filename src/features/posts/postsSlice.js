@@ -7,15 +7,18 @@ export const fetchPostData = createAsyncThunk(
         
         let state = getState();
         const urlCreationObj = postsUrlCreationHelper(arg.url, arg.firstPage, arg.filter, state.posts.after);
-        const url = urlCreationObj.url;
+        let url = urlCreationObj.url;
+        url = urlCreationObj.url.replace('https://www.reddit.com', '/.netlify/functions/proxy');
         const showHomeFilters = urlCreationObj.showHomeFilters;
         let response;
         let data;
+        console.log(url);
         try{
-            response = await fetch(url, {signal}); 
+            response = await fetch(url,{signal}); 
             data = await response.json();
         }
         catch(error){
+            console.log(error);
             if(error.name==="AbortError"){
                 const msg = "AbortError"
                 return rejectWithValue(msg);
@@ -23,6 +26,7 @@ export const fetchPostData = createAsyncThunk(
             return rejectWithValue("Something went wrong");
         }
         const transformedData = postDataTransformationHelper(data);
+        console.log("Transformed data:", transformedData);
         return {
             data:data,
             firstPage: arg.firstPage,
@@ -48,7 +52,8 @@ export const fetchPostComments = createAsyncThunk(
 
 const postsSlice = createSlice({
     name: 'posts',
-    initialState: {postData: [],
+    initialState: {
+        postData: [],
         transformedPostData: [],
         loadedPosts: "", 
         isLoading: false,
@@ -78,6 +83,7 @@ const postsSlice = createSlice({
             //
             state.postData = [];
             state.commentsData = [];
+            console.log(state.transformedCommentData)
             state.postData[0] = action.payload.data;
             state.after=action.payload.data.data.after;
             }
