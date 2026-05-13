@@ -1,7 +1,7 @@
 function postsUrlCreationHelper(inputUrl, firstPage, filter, after){
     let showHomeFilters;
     let url = 'https://www.reddit.com';
-    if(filter && (!inputUrl.includes("/r/popular")) || firstPage===true && (!inputUrl.includes("/r/popular"))){
+    if((filter && (!inputUrl.includes("/r/popular")))|| (firstPage===true && (!inputUrl.includes("/r/popular")))){
         url += '/search.json?q=';
         url += inputUrl;
         url += "&type=posts";
@@ -70,7 +70,7 @@ function normalizeRedditUrl(url) {
 }
 function postDataTransformationHelper (data){ //destructures nested post data to avoid deep nesting
     let transformedData = [];
-    data.data.children.map((item)=>{
+    data.data.children.forEach((item)=>{
         const {                     
             data:{
                 title,
@@ -110,7 +110,7 @@ function commentDataTransformationHelper(data, firstPage){
         transformedData.push({
             commentIds
         })
-        data[1].data.children.map((item)=>{   
+        data[1].data.children.forEach((item)=>{   
         if (item.kind!=="more"){
             const{
                 data:{
@@ -124,7 +124,7 @@ function commentDataTransformationHelper(data, firstPage){
         })
     }
     else{
-        data.json.data.things.map((item)=>{
+        data.json.data.things.forEach((item)=>{
           if (item.kind!=="more"){
             const{
                 data:{

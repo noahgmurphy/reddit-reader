@@ -1,7 +1,7 @@
 import React from 'react';
 import Linkify from 'react-linkify'
-import { useSelector, useDispatch} from 'react-redux';
-import { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
+import { useEffect } from 'react';
 import  styles  from './PostDetailedView.module.css';
 
 
@@ -27,7 +27,7 @@ export const PostDetailedView = ({setShowSearchBar, showSearchBar, setShowLoadMo
         return () => {
             window.removeEventListener('scroll', handleScroll )
         }
-    }, [])
+    }, [setShowSearchBar])
 
     return(
     <div style={{marginTop: showSearchBar?'70px': '0px'}}>  
@@ -35,7 +35,7 @@ export const PostDetailedView = ({setShowSearchBar, showSearchBar, setShowLoadMo
         <div>
             <div className={styles.postDetailsContainer}>
                 <h3 className={styles.commentTitle}>{transformedCommentData[0].postTitle}</h3>
-                {transformedCommentData[0].previewImageUrl&&<img className={styles.commentPhoto} src={transformedCommentData[0].previewImageUrl}/>}
+                {transformedCommentData[0].previewImageUrl&&<img className={styles.commentPhoto} src={transformedCommentData[0].previewImageUrl} alt="thumbnail for post"/>}
             </div>
             {transformedCommentData.slice(2).map((item)=>(                  //slices first element containing post details
                 <div>
@@ -49,7 +49,7 @@ export const PostDetailedView = ({setShowSearchBar, showSearchBar, setShowLoadMo
         </div>}
     {((moreCommentsIds?.length>0) || (transformedCommentData[1]?.commentIds?.length>0 && !moreCommentsIds)) && <button className={styles.loadMoreButton} onClick={()=>{handleLoadMoreComments(commentsData, transformedCommentData)}}>LOAD MORE...</button>}
             {isCommentsLoading && <div className={styles.loadingContainer}>
-                <img className={styles.loadingGif} src="https://media.tenor.com/Pq1cZiuhlEEAAAAi/rajinikanth.gif"/>  
+                <img alt="loading indicator"className={styles.loadingGif} src="https://media.tenor.com/Pq1cZiuhlEEAAAAi/rajinikanth.gif"/>  
             </div>}
     </div>
 )

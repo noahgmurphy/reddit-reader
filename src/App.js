@@ -1,7 +1,7 @@
 import './App.css';
 import {useSelector , useDispatch} from 'react-redux';
 import { fetchPostData } from './features/posts/postsSlice.js';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { PostSearchBar } from './features/posts/PostSearchBar.js';
 import { PostDetailedView } from './features/posts/PostDetailedView.js';
 import { PostDisplay } from './features/posts/PostDisplay.js';
@@ -24,6 +24,7 @@ function App() {
   const [entry] = performance.getEntriesByType('navigation');
 //LOAD MORE COMMENTS STATE DATA
   const [moreCommentsIds, setMoreCommentsIds] = useState();
+
 //HANDLES FIRST MOUNT, REFRESH, AND REDIRECT
   useEffect(()=>{
     const handlePopState = (event) => {
@@ -75,15 +76,15 @@ function App() {
     return () => {
       window.removeEventListener('popstate', handlePopState); 
     }
-  },[])
+  },[dispatch, entry])
 //HANDLES CANCELLATION OF PENDING PROMISE
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     if (pendingPromise){
       pendingPromise.abort();
       setPendingPromise(null);
       console.log("Thunk Aborted");
     }
-  }
+  },[pendingPromise])
 //HANDLES INPUT AND SEARCH BUTTON LOGIC
   const handleInput = (value) => {        //sets state from user input
     setInput(value);
