@@ -25,13 +25,15 @@ function App() {
 //LOAD MORE COMMENTS STATE DATA
   const [moreCommentsIds, setMoreCommentsIds] = useState();
 //HANDLES CANCELLATION OF PENDING PROMISE
-  const handleCancel = () => {
-    if (pendingPromise){
-      pendingPromise.abort();
-      setPendingPromise(null);
+  const handleCancel = useCallback(() => {
+    setPendingPromise((currentPromise) => {
+    if (currentPromise) {
+      currentPromise.abort();
       console.log("Thunk Aborted");
     }
-  }
+    return null;
+  });
+  }, [])
     
 //HANDLES FIRST MOUNT, REFRESH, AND REDIRECT
   useEffect(()=>{
@@ -45,11 +47,7 @@ function App() {
       setUrl(urlFromRefresh); 
       setFilter(filterFromRefresh);
       //CANCEL
-      if (pendingPromise){
-      pendingPromise.abort();
-      setPendingPromise(null);
-      console.log("Thunk Aborted");
-    }
+      handleCancel();
       const currentPromise = dispatch(fetchPostData({                                                //fetch data from before refresh to restore view
         firstPage: true,
         url:urlFromRefresh,
@@ -63,11 +61,7 @@ function App() {
     else if(entry && entry.type==="reload" && window.location.pathname==="/detailedview"){ //if in detailed (comments) view and reload triggered
       const commentLink = localStorage.getItem('commentLink');                             //retrieve comment link from local storage
       //CANCEL
-      if (pendingPromise){
-      pendingPromise.abort();
-      setPendingPromise(null);
-      console.log("Thunk Aborted");
-    }
+      handleCancel();
       const currentPromise = dispatch(fetchPostComments({                                  //fetch comments from before refresh to restore detailed view
         firstPage: true,
         permalink: commentLink,
@@ -82,11 +76,7 @@ function App() {
       localStorage.setItem('storedUrl', "/r/popular");
       setUrl("/r/popular");
       //CANCEL
-      if (pendingPromise){
-      pendingPromise.abort();
-      setPendingPromise(null);
-      console.log("Thunk Aborted");
-    }
+      handleCancel();
       const currentPromise = dispatch(fetchPostData({                          //fetch home page data
         firstPage: true,
         url:"/r/popular"
@@ -99,7 +89,7 @@ function App() {
     return () => {
       window.removeEventListener('popstate', handlePopState); 
     }
-  },[dispatch, entry])
+  },[dispatch, entry, handleCancel])
 
 //HANDLES INPUT AND SEARCH BUTTON LOGIC
   const handleInput = (value) => {        //sets state from user input
