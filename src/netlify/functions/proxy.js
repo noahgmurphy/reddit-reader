@@ -7,8 +7,18 @@ exports.handler = async function (event) {
   const path = event.rawPath?.startsWith(prefix)
     ? event.rawPath.slice(prefix.length)
     : event.path.replace(prefix, "");
-  const query = event.rawQueryString ? `?${event.rawQueryString}` : "";
+  let queryString = event.rawQueryString;
+  
+  
+  if (!queryString && event.queryStringParameters) {
+    queryString = Object.entries(event.queryStringParameters)
+      .map(([key, val]) => `${encodeURIComponent(key)}=${encodeURIComponent(val)}`)
+      .join('&');
+  }
+
+  const query = queryString ? `?${queryString}` : "";
   const redditUrl = `https://www.reddit.com${path}${query}`;
+  console.log(redditUrl)
 
   try {
     const response = await fetch(redditUrl);

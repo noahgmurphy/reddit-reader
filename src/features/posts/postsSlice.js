@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice, current} from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 import { postsUrlCreationHelper, commentsUrlCreationHelper, postDataTransformationHelper, commentDataTransformationHelper } from '../../utils.js'
 
 export const fetchPostData = createAsyncThunk(
@@ -16,6 +16,7 @@ export const fetchPostData = createAsyncThunk(
         try{
             response = await fetch(url,{signal}); 
             data = await response.json();
+            console.log(data)
         }
         catch(error){
             console.log(error);
@@ -94,7 +95,7 @@ const postsSlice = createSlice({
                 state.postData[0].data.children.push(...action.payload.data.data.children); //unrolls next set of comments and appends to array. this avoids adding an array and instead adds the array elements to the existing array
                 state.after=action.payload.data.data.after;
             }
-            const data = (current(state));
+            //const data = (current(state));
             state.showHomeFilters = action.payload.showHomeFilters;
         })
         builder.addCase(fetchPostData.rejected, (state) => {
@@ -123,7 +124,7 @@ const postsSlice = createSlice({
                 //
                 state.commentsData = [...state.commentsData, state.commentsData[1].data.children.push(...action.payload.data.json.data.things)]
             }
-            const data = (current(state));
+            //const data = (current(state));
         })
         builder.addCase(fetchPostComments.rejected, (state) => {
             state.loadedComments = "failed";

@@ -25,13 +25,14 @@ export const PostDisplay = ({
 const dispatch = useDispatch();
 const navigate = useNavigate();
 const showInfiniteScroll = useSelector((state)=>state.posts.showInfiniteScroll);
-const loadedPosts = useSelector((state)=>state.posts.loadedPosts);
+//const loadedPosts = useSelector((state)=>state.posts.loadedPosts);
 //EXTRACTS DATA FROM API AND SAVES IN VARIABLES TO IMPROVE READABILITY
 
 //CALLS RESET WINDOW WHEN NEW SEARCH DATA IS ACQUIRED 
+let initialPost = items[0].data.children[0];
 useEffect(()=>{
     handleResetWindow();        //resets window position to top upon new search data load
-}, [items[0].data.children[0]])
+}, [initialPost])
 //FETCHES FIRST BATCH OF COMMENTS
 const handleLinkClick = (event, permalink) => { 
     console.log("link clicked");
@@ -94,13 +95,13 @@ const Row = ({index, style}) => {
             listRef.current.resetAfterIndex(index, true);                   //resets react window measurements after height change to avoid visual bugs
         }
         
-    }, [loadedPosts, index]);
+    }, [index]);
     
     let content;
     if(!isItemLoaded(index)){   //show loading gif if item is not yet loaded
         content = (
             <div className={styles.loadingContainer}>
-                <img className={styles.loadingGif} src="https://media.tenor.com/Pq1cZiuhlEEAAAAi/rajinikanth.gif"/>
+                <img alt="loading indicator" className={styles.loadingGif} src="https://media.tenor.com/Pq1cZiuhlEEAAAAi/rajinikanth.gif"/>
             </div>
         )
     }
@@ -112,7 +113,7 @@ const Row = ({index, style}) => {
                 <div className={styles.textContainer}>
                 <h3 className={`${styles.postTitle} ${transformedPostData[index].preview?'':styles.noPreview}`}>{transformedPostData[index].title}</h3>
                 </div>
-                {transformedPostData[index].preview && <img className={styles.postPreview} src={transformedPostData[index].preview.images[0].source.url}/>}
+                {transformedPostData[index].preview && <img alt="post thumbnail" className={styles.postPreview} src={transformedPostData[index].preview.images[0].source.url}/>}
                 
                 <div className={styles.infoContainer}>
                     <div className={styles.postInfoBox}>
