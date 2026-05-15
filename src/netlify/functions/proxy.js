@@ -3,13 +3,18 @@
 exports.handler = async function (event) {
     console.log("proxy");
     console.log(event);
-  const prefix = "/.netlify/functions/proxy";
-  const path = event.rawPath?.startsWith(prefix)
-    ? event.rawPath.slice(prefix.length)
-    : event.path.replace(prefix, "");
+  let incomingPath = event.path || event.rawPath || "";
+
+  
+  incomingPath = incomingPath.replace("/.netlify/functions/proxy", "");
+  incomingPath = incomingPath.replace("/api", "");
+
+  
+  if (!incomingPath.startsWith("/")) {
+    incomingPath = "/" + incomingPath;
+  }
+
   let queryString = event.rawQueryString;
-  
-  
   if (!queryString && event.queryStringParameters) {
     queryString = Object.entries(event.queryStringParameters)
       .map(([key, val]) => `${encodeURIComponent(key)}=${encodeURIComponent(val)}`)
@@ -17,7 +22,7 @@ exports.handler = async function (event) {
   }
 
   const query = queryString ? `?${queryString}` : "";
-  const redditUrl = `https://www.reddit.com${path}${query}`;
+  const redditUrl = `https://www.reddit.com${incomingPath}${query}`;
   console.log(redditUrl)
 
   try {
