@@ -22,7 +22,7 @@ exports.handler = async function (event) {
   }
 
   const query = queryString ? `?${queryString}` : "";
-  const redditUrl = `https://www.reddit.com${incomingPath}${query}`;
+  const redditUrl = `https://api.reddit.com${incomingPath}${query}`;
   console.log(redditUrl)
 
   try {
