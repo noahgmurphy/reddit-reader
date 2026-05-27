@@ -11,7 +11,6 @@ import { fetchPostComments } from './postsSlice';
 export const PostDisplay = ({
     hasNextPage,
     isNextPageLoading, 
-    items, 
     transformedPostData,
     loadNextPage,
     setShowSearchBar,
@@ -20,22 +19,17 @@ export const PostDisplay = ({
     handleCancel,
 }) => {
 
-
-
 const dispatch = useDispatch();
 const navigate = useNavigate();
 const showInfiniteScroll = useSelector((state)=>state.posts.showInfiniteScroll);
-//const loadedPosts = useSelector((state)=>state.posts.loadedPosts);
-//EXTRACTS DATA FROM API AND SAVES IN VARIABLES TO IMPROVE READABILITY
 
 //CALLS RESET WINDOW WHEN NEW SEARCH DATA IS ACQUIRED 
-let initialPost = items[0].data.children[0];
+let initialPost = transformedPostData[0]; 
 useEffect(()=>{
     handleResetWindow();        //resets window position to top upon new search data load
 }, [initialPost])
 //FETCHES FIRST BATCH OF COMMENTS
 const handleLinkClick = (event, permalink) => { 
-    console.log("link clicked");
     event.preventDefault();
     localStorage.setItem('commentLink', permalink)
     handleCancel();
@@ -73,7 +67,6 @@ const handleScroll = ({scrollOffset, scrollDirection}) => {                     
     }
     if(scrollDirection==="forward" && hasRun === false && lastOffset>=0 && scrollOffset-lastOffset>=50){    //if scrolling down more than 50px 
         setShowSearchBar(false)                                                                            
-        console.log(false);
         setHasRun(false);
     }
 }
@@ -105,16 +98,13 @@ const Row = ({index, style}) => {
             </div>
         )
     }
-    //POST TITLE ORIGINAL CODE:<h3 className={`${styles.postTitle} ${items[0].data.children[index].data.preview?'':styles.noPreview}`}>{items[0].data.children[index].data.title}</h3>
-    else{                       //show post data if item is loaded
+    else{                       
         content = (
             <div style={{height:transformedPostData[index].preview?'500px':' 150px'}} ref={itemRef} className={styles.postWindow}>
-            
                 <div className={styles.textContainer}>
                 <h3 className={`${styles.postTitle} ${transformedPostData[index].preview?'':styles.noPreview}`}>{transformedPostData[index].title}</h3>
                 </div>
                 {transformedPostData[index].preview && <img alt="post thumbnail" className={styles.postPreview} src={transformedPostData[index].preview.images[0].source.url}/>}
-                
                 <div className={styles.infoContainer}>
                     <div className={styles.postInfoBox}>
                         <p className={styles.score}>&#x2193;{transformedPostData[index].score}&#x2191;</p>
@@ -128,9 +118,9 @@ const Row = ({index, style}) => {
     return <div style={style}>{content}</div>
 };
 //LOGIC FOR INFINITE LOADER
-const itemCount = hasNextPage ? items[0].data.children.length+1 : items[0].data.children.length; //checks if there is a next page and sets item count accordingly
+const itemCount = hasNextPage ? transformedPostData.length+1 : transformedPostData.length; //checks if there is a next page and sets item count accordingly
 const loadMoreItems = isNextPageLoading ? ()=>{} : loadNextPage;                                 //loads next page if not already loading
-const isItemLoaded = index => !hasNextPage || index < items[0].data.children.length;             //checks if item is loaded based on index and whether there is a next page
+const isItemLoaded = index => !hasNextPage || index < transformedPostData.length;             //checks if item is loaded based on index and whether there is a next page
 //RETURNING REACT WINDOW <List> COMPONENT INSIDE INIFITE LOADER
 return(
     <div>
@@ -141,7 +131,7 @@ return(
         >
         {({onItemsRendered, ref}) => (
             <div>
-                {items[0]&&
+                {transformedPostData[0]&&
                 <List 
                 onItemsRendered={onItemsRendered}
                 ref={list=>{

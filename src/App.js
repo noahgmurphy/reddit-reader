@@ -16,7 +16,6 @@ function App() {
   const [showSearchBar, setShowSearchBar] = useState(true);
   const [pendingPromise, setPendingPromise] = useState(null);
   const dispatch = useDispatch();
-  const data = useSelector((state)=>state.posts.postData);
   const transformedPostData = useSelector((state)=>state.posts.transformedPostData);
   const after = useSelector((state)=>state.posts.after);
   const apiStatus = useSelector((state)=>state.posts.isLoading);
@@ -29,7 +28,6 @@ function App() {
     setPendingPromise((currentPromise) => {
     if (currentPromise) {
       currentPromise.abort();
-      console.log("Thunk Aborted");
     }
     return null;
   });
@@ -99,9 +97,7 @@ function App() {
     localStorage.clear();
     setFilter("");
     if(input && input.trim()!=="" ){      //checks if input exists and is not empty string to avoid unnecessary fetches
-      console.log(timeoutId.current)
       clearTimeout(timeoutId.current);      //cancels any delayed dispatches still incoming to avoid race conditions
-      console.log(timeoutId.current)
       const url = searchInputTransformHelper(input)
       localStorage.setItem('storedUrl', url);   //stores current url in local storage to restore view upon refresh
       setUrl(url);
@@ -134,7 +130,7 @@ function App() {
   }
 //HANDLES FILTER SETTING
   const handleFilter = (filter) => {
-    if(data.length>0){
+    if(transformedPostData.length>0){ //CHANGE THIS LINE TO TRANSFORMED DATA.LENGTH
       handleCancel();
       localStorage.setItem('storedFilter', filter);
       setFilter(filter);
@@ -151,7 +147,6 @@ function App() {
   }
 //LOAD NEXT PAGE FOR INFINITE LOADER
   const loadNextPage=()=>{
-    console.log("load next page")
     let nextUrl = url; 
     nextUrl+="&after="
     timeoutId.current = setTimeout(()=>{  
@@ -177,7 +172,7 @@ function App() {
       }
       const currentPromise = dispatch(fetchPostComments({           
           firstPage: false,
-          parentId: commentsData[1].data.children[commentsData[1].data.children.length-1].data.parent_id,
+          parentId: transformedCommentData[1].parentId, //CHANGE TO TRANSFORMED VERSION
           children: nextIds 
       }))
       setPendingPromise(currentPromise);
@@ -193,7 +188,7 @@ function App() {
         <Route path='/detailedview' element={<PostDetailedView setShowSearchBar={setShowSearchBar} showSearchBar={showSearchBar} handleLoadMoreComments={handleLoadMoreComments} moreCommentsIds={moreCommentsIds}/>}/>
         <Route path='/' index element={
           <div>
-            {data[0]&&<PostDisplay setUrl={setUrl} url={url} setShowSearchBar={setShowSearchBar} showSearchBar={showSearchBar} items={data} hasNextPage={after?true:false} isNextPageLoading={apiStatus} loadNextPage={loadNextPage} pendingPromise={pendingPromise} setPendingPromise={setPendingPromise} handleCancel={handleCancel} transformedPostData={transformedPostData}/>}
+            {transformedPostData[0]&&<PostDisplay setUrl={setUrl} url={url} setShowSearchBar={setShowSearchBar} showSearchBar={showSearchBar} hasNextPage={after?true:false} isNextPageLoading={apiStatus} loadNextPage={loadNextPage} pendingPromise={pendingPromise} setPendingPromise={setPendingPromise} handleCancel={handleCancel} transformedPostData={transformedPostData}/>}
           </div>
         }/>
       </Route>

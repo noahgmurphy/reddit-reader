@@ -1,15 +1,10 @@
 
 
 exports.handler = async function (event) {
-    console.log("proxy");
-    console.log(event);
   let incomingPath = event.path || event.rawPath || "";
-
-  
   incomingPath = incomingPath.replace("/.netlify/functions/proxy", "");
   incomingPath = incomingPath.replace("/api", "");
 
-  
   if (!incomingPath.startsWith("/")) {
     incomingPath = "/" + incomingPath;
   }
@@ -23,16 +18,30 @@ exports.handler = async function (event) {
 
   const query = queryString ? `?${queryString}` : "";
   const redditUrl = `https://api.reddit.com${incomingPath}${query}`;
-  console.log(redditUrl)
-
-  try {
-    const response = await fetch(redditUrl , {
+  let fetchOptionsObject = {};
+  let targetUrl;
+  if(redditUrl.includes('/morechildren')){
+    targetUrl = "https://www.reddit.com/api/morechildren.json";
+    const incomingUrl = new URL(redditUrl);
+    fetchOptionsObject = {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'User-Agent': 'web:redditreaderbynoahm:v1.0.0 (by /u/noah_m_dev)' 
+      },
+      body: incomingUrl.searchParams 
+    }
+  }
+  else{
+    fetchOptionsObject = {
       method: 'GET',
       headers: {
-        // FORMAT: platform:app_id:version (by /u/your_username)
         'User-Agent': 'web:redditreaderbynoahm:v1.0.0 (by /u/noah_m_dev)'
       }
-    });
+    }
+  }
+  try {
+    const response = await fetch(targetUrl?targetUrl:redditUrl , fetchOptionsObject);
     const body = await response.text();
 
     return {
@@ -47,4 +56,4 @@ exports.handler = async function (event) {
       body: JSON.stringify({ error: error.message }),
     };
   }
-};
+}

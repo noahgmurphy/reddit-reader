@@ -60,7 +60,7 @@ test('properly fetches and stores initial popular posts', async () => {
   
   await waitFor(() => {
     expect(fetch).toHaveBeenCalledWith(
-    "https://www.reddit.com/r/popular.json?raw_json=1",
+    "/.netlify/functions/proxy/r/popular.json?raw_json=1",
     expect.anything()
   );
   });
@@ -91,7 +91,7 @@ test ('properly fetches data according to search input', async () => {
 
   await waitFor(() => {
     expect(fetch).toHaveBeenCalledWith(
-    "https://www.reddit.com/search.json?q=test&type=posts&raw_json=1",
+    "/.netlify/functions/proxy/search.json?q=test&type=posts&raw_json=1",
     expect.anything()
   );
   });
@@ -111,7 +111,7 @@ test('properly filters posts', async () => {
 
    await waitFor(() => {
     expect(fetch).toHaveBeenCalledWith(
-    'https://www.reddit.com/r/popular/new.json?raw_json=1',
+    '/.netlify/functions/proxy/r/popular/new.json?raw_json=1',
     expect.anything()
   );
   });
@@ -132,7 +132,7 @@ test('thunk properly fetches and stores comments', async () => {
       firstPage: true,
       permalink: 'test_link'
   }));
-  expect(fetch).toHaveBeenCalledWith('https://www.reddit.comtest_link.json?&raw_json=1');
+  expect(fetch).toHaveBeenCalledWith('/.netlify/functions/proxytest_link.json?&raw_json=1');
   const state = store.getState();
   expect(state.posts.transformedCommentData[0].postTitle).toBe('Test Post');
   expect(state.posts.transformedCommentData[0].previewImageUrl).toBe('Test_Image_Url');

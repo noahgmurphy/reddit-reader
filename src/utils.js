@@ -102,13 +102,17 @@ function commentDataTransformationHelper(data, firstPage){
     if(firstPage){                                         //data structure is different after first fetch
         const postTitle = data[0]?.data?.children[0]?.data?.title;  
         const previewImageUrl = data[0]?.data?.children[0]?.data?.preview?.images[0]?.source?.url; 
-        const commentIds = data[1]?.data?.children[data[1].data.children.length-1]?.data?.children;
+        const commentIds = data[1]?.data?.children[data[1].data.children.length-1]?.data?.children; 
+        const parentId = data[1].data.children[data[1].data.children.length-1].data.parent_id //CHANGE TO TRANSFORMED VERSION
+        //ACQUIRE PARENT ID HERE FOR LOADMORECOMMENTS IN APP.JS
         transformedData.push({
             postTitle,
             previewImageUrl
+            
         });
         transformedData.push({
-            commentIds
+            commentIds,
+            parentId
         })
         data[1].data.children.forEach((item)=>{   
         if (item.kind!=="more"){

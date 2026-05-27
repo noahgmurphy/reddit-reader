@@ -12,14 +12,11 @@ export const fetchPostData = createAsyncThunk(
         const showHomeFilters = urlCreationObj.showHomeFilters;
         let response;
         let data;
-        console.log(url);
         try{
             response = await fetch(url,{signal}); 
             data = await response.json();
-            console.log(data)
         }
         catch(error){
-            console.log(error);
             if(error.name==="AbortError"){
                 const msg = "AbortError"
                 return rejectWithValue(msg);
@@ -27,7 +24,6 @@ export const fetchPostData = createAsyncThunk(
             return rejectWithValue("Something went wrong");
         }
         const transformedData = postDataTransformationHelper(data);
-        console.log("Transformed data:", transformedData);
         return {
             data:data,
             firstPage: arg.firstPage,
@@ -40,10 +36,11 @@ export const fetchPostData = createAsyncThunk(
 export const fetchPostComments = createAsyncThunk(
     'posts/fetchPostComments',
     async(arg)=>{
-        const url = commentsUrlCreationHelper(arg.firstPage, arg.parentId, arg.children, arg.permalink)
+        let url = commentsUrlCreationHelper(arg.firstPage, arg.parentId, arg.children, arg.permalink);
+        url = url.replace('https://www.reddit.com', '/.netlify/functions/proxy');
         const response = await fetch(url);
         const data = await response.json();
-        const transformedData = commentDataTransformationHelper(data, arg.firstPage); //this line causes failure to load comments ON SECOND AND SUBSEQUENT
+        const transformedData = commentDataTransformationHelper(data, arg.firstPage); 
         return {
             data:data,
             firstPage: arg.firstPage,
@@ -54,13 +51,11 @@ export const fetchPostComments = createAsyncThunk(
 const postsSlice = createSlice({
     name: 'posts',
     initialState: {
-        postData: [],
         transformedPostData: [],
         loadedPosts: "", 
         isLoading: false,
         commentsIsLoading: false,
         after: "",
-        commentsData: [],
         transformedCommentData: [],
         loadedComments: "",
         showInfiniteScroll: "false",
@@ -79,23 +74,13 @@ const postsSlice = createSlice({
             state.loadedPosts = "success";
             state.isLoading = false;
             if(action.payload.firstPage === true){
-            //CODE FOR TRANSFORMED DATA
                 state.transformedPostData = action.payload.transformedData;
-            //
-            state.postData = [];
-            state.commentsData = [];
-            console.log(state.transformedCommentData)
-            state.postData[0] = action.payload.data;
-            state.after=action.payload.data.data.after;
-            }
-            else{
-            //CODE FOR TRANSFORMED DATA
-                state.transformedPostData.push(...action.payload.transformedData);
-            //
-                state.postData[0].data.children.push(...action.payload.data.data.children); //unrolls next set of comments and appends to array. this avoids adding an array and instead adds the array elements to the existing array
                 state.after=action.payload.data.data.after;
             }
-            //const data = (current(state));
+            else{
+                state.transformedPostData.push(...action.payload.transformedData);
+                state.after=action.payload.data.data.after;
+            }
             state.showHomeFilters = action.payload.showHomeFilters;
         })
         builder.addCase(fetchPostData.rejected, (state) => {
@@ -112,19 +97,13 @@ const postsSlice = createSlice({
         builder.addCase(fetchPostComments.fulfilled, (state, action) => {
             state.loadedComments = "success";
             state.commentsIsLoading = false;
-            if(state.commentsData.length===0||action.payload.firstPage){
-                state.commentsData = action.payload.data;
-                //CODE FOR TRANSFORMED DATA
+            if(state.transformedCommentData.length===0||action.payload.firstPage){
                 state.transformedCommentData = action.payload.transformedData;
-                //
             }
             else{
-                //CODE FOR TRANSFORMED DATA
                 state.transformedCommentData.push(...action.payload.transformedData);
-                //
-                state.commentsData = [...state.commentsData, state.commentsData[1].data.children.push(...action.payload.data.json.data.things)]
             }
-            //const data = (current(state));
+            
         })
         builder.addCase(fetchPostComments.rejected, (state) => {
             state.loadedComments = "failed";
