@@ -10,7 +10,7 @@ Reddit Reader is a React application that allows users to browse Reddit and filt
 
 Run this app live
 -------------------
-
+[Reddit Reader](https://reddit-reader-by-noahm.netlify.app/)
 
 Run Locally
 -------------------
